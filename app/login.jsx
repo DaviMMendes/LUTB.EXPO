@@ -12,21 +12,38 @@ import {
   View,
 } from "react-native";
 
+import { useAuthStore } from "../src/store/authStore";
+
 export default function Login() {
+  const login = useAuthStore((state) => state.login);
+  const autenticado = useAuthStore((state) => state.autenticado);
+  const usuario = useAuthStore((state) => state.usuario);
+  const ultimaAcao = useAuthStore((state) => state.ultimaAcao);
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
-  function handleLogin() {
-    if (!email.trim() || !senha.trim()) {
-      Alert.alert("Atenção", "Preencha email e senha.");
+  async function handleLogin() {
+    if (carregando) {
       return;
     }
 
-    Alert.alert(
-      "Login temporário",
-      "O login real será integrado ao Supabase depois."
-    );
+    setCarregando(true);
 
+    const resultado = await login({
+      email,
+      senha,
+    });
+
+    setCarregando(false);
+
+    if (!resultado.sucesso) {
+      Alert.alert("Atenção", resultado.mensagem);
+      return;
+    }
+
+    Alert.alert("Login temporário", resultado.mensagem);
     router.push("/perfil");
   }
 
@@ -40,8 +57,8 @@ export default function Login() {
           <Text style={styles.logo}>LUTB</Text>
           <Text style={styles.title}>Entrar na conta</Text>
           <Text style={styles.subtitle}>
-            A autenticação ainda está em modo temporário até a integração com o
-            Supabase.
+            Fluxo de autenticação temporário usando Zustand. Depois será trocado
+            pela autenticação real do Supabase.
           </Text>
         </View>
 
@@ -72,7 +89,9 @@ export default function Login() {
           </View>
 
           <Pressable style={styles.primaryButton} onPress={handleLogin}>
-            <Text style={styles.primaryButtonText}>Entrar</Text>
+            <Text style={styles.primaryButtonText}>
+              {carregando ? "Entrando..." : "Entrar"}
+            </Text>
           </Pressable>
 
           <Link href="/signup" asChild>
@@ -82,11 +101,22 @@ export default function Login() {
           </Link>
         </View>
 
+        <View style={styles.statusBox}>
+          <Text style={styles.statusTitle}>Estado da autenticação</Text>
+          <Text style={styles.statusText}>
+            Status: {autenticado ? "Usuário logado" : "Usuário não logado"}
+          </Text>
+          <Text style={styles.statusText}>
+            Usuário: {usuario?.email || "nenhum"}
+          </Text>
+          <Text style={styles.statusText}>Última ação: {ultimaAcao}</Text>
+        </View>
+
         <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Status da tela</Text>
+          <Text style={styles.infoTitle}>Integração futura</Text>
           <Text style={styles.infoText}>
-            Esta tela já está pronta visualmente, mas ainda não valida usuário no
-            banco. O comportamento atual é apenas demonstrativo.
+            Quando o Supabase estiver pronto, esta tela deverá chamar
+            supabase.auth.signInWithPassword usando email e senha.
           </Text>
         </View>
 
@@ -192,6 +222,24 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "800",
+  },
+  statusBox: {
+    marginTop: 22,
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 18,
+  },
+  statusTitle: {
+    color: "#000000",
+    fontSize: 17,
+    fontWeight: "900",
+    marginBottom: 8,
+  },
+  statusText: {
+    color: "#202020",
+    fontSize: 14,
+    lineHeight: 21,
+    fontWeight: "700",
   },
   infoBox: {
     marginTop: 22,
