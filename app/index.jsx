@@ -29,6 +29,14 @@ export default function Home() {
             </Pressable>
           </Link>
 
+          <Link href="/categorias" asChild>
+            <Pressable style={styles.secondaryButton}>
+              <Text style={styles.secondaryButtonText}>
+                Ver categorias
+              </Text>
+            </Pressable>
+          </Link>
+
           <Link href="/sobre" asChild>
             <Pressable style={styles.secondaryButton}>
               <Text style={styles.secondaryButtonText}>Sobre o app</Text>
@@ -45,6 +53,15 @@ export default function Home() {
             <Pressable style={styles.gridItem}>
               <Text style={styles.gridItemTitle}>Catálogo</Text>
               <Text style={styles.gridItemText}>Produtos da loja</Text>
+            </Pressable>
+          </Link>
+
+          <Link href="/categorias" asChild>
+            <Pressable style={styles.gridItem}>
+              <Text style={styles.gridItemTitle}>Categorias</Text>
+              <Text style={styles.gridItemText}>
+                Relação Produto/Categoria
+              </Text>
             </Pressable>
           </Link>
 
@@ -66,6 +83,13 @@ export default function Home() {
             <Pressable style={styles.gridItem}>
               <Text style={styles.gridItemTitle}>Admin</Text>
               <Text style={styles.gridItemText}>CRUD temporário</Text>
+            </Pressable>
+          </Link>
+
+          <Link href="/sobre" asChild>
+            <Pressable style={styles.gridItem}>
+              <Text style={styles.gridItemTitle}>Sobre</Text>
+              <Text style={styles.gridItemText}>Resumo técnico</Text>
             </Pressable>
           </Link>
         </View>
@@ -151,6 +175,14 @@ export default function Home() {
         </View>
 
         <View style={styles.card}>
+          <Text style={styles.cardTitle}>Categorias</Text>
+          <Text style={styles.cardText}>
+            Segunda entidade do app. As categorias agrupam produtos por meio do
+            campo categoriaId, demonstrando o relacionamento entre entidades.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
           <Text style={styles.cardTitle}>Detalhes do produto</Text>
           <Text style={styles.cardText}>
             Cada item possui uma tela própria com informações do produto, imagem,
@@ -181,7 +213,16 @@ export default function Home() {
             • Interações com botões e formulários
           </Text>
           <Text style={styles.requirementItem}>
+            • Zustand para gerenciamento de estado
+          </Text>
+          <Text style={styles.requirementItem}>
             • CRUD temporário de produtos
+          </Text>
+          <Text style={styles.requirementItem}>
+            • Segunda entidade: Categoria
+          </Text>
+          <Text style={styles.requirementItem}>
+            • Relacionamento Produto/Categoria
           </Text>
           <Text style={styles.requirementItem}>
             • Preparação para Supabase
@@ -194,7 +235,7 @@ export default function Home() {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Projeto acadêmico desenvolvido em React Native, Expo Router e
+          Projeto acadêmico desenvolvido em React Native, Expo Router, Zustand e
           integração planejada com Supabase.
         </Text>
       </View>
