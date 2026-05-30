@@ -1,5 +1,4 @@
-import { Link } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -9,271 +8,321 @@ import {
   TextInput,
   View,
 } from "react-native";
-
+import { router } from "expo-router";
 import { useProdutosStore } from "../../src/store/produtosStore";
+import { useCategoriasStore } from "../../src/store/categoriasStore";
 
-export default function AdminProdutos() {
-  const produtos = useProdutosStore((state) => state.produtos);
-  const totalOriginalMock = useProdutosStore((state) => state.totalOriginalMock);
-  const resetVersao = useProdutosStore((state) => state.resetVersao);
+export default function AdminProdutosScreen() {
+  const {
+    produtos,
+    adicionarProduto,
+    editarProduto,
+    removerProduto,
+    restaurarProdutosDoMock,
+    resetVersao,
+  } = useProdutosStore();
 
-  const adicionarProduto = useProdutosStore((state) => state.adicionarProduto);
-  const atualizarProduto = useProdutosStore((state) => state.atualizarProduto);
-  const removerProduto = useProdutosStore((state) => state.removerProduto);
-  const resetarProdutos = useProdutosStore((state) => state.resetarProdutos);
+  const { categorias } = useCategoriasStore();
 
-  const [produtoEditandoId, setProdutoEditandoId] = useState(null);
+  const [produtoEditando, setProdutoEditando] = useState(null);
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
-  const [categoria, setCategoria] = useState("");
   const [descricao, setDescricao] = useState("");
-  const [mensagemStatus, setMensagemStatus] = useState("");
+  const [categoriaId, setCategoriaId] = useState(
+    categorias[0]?.id || "acessorios"
+  );
+  const [mensagem, setMensagem] = useState("");
 
-  const estaEditando = produtoEditandoId !== null;
+  const totalOriginalMock = 8;
 
-  function limparCampos() {
-    setProdutoEditandoId(null);
-    setNome("");
-    setPreco("");
-    setCategoria("");
-    setDescricao("");
-  }
+  const categoriasPorId = useMemo(() => {
+    const mapa = {};
 
-  function salvarProduto() {
-    if (!nome.trim() || !preco.trim() || !categoria.trim()) {
-      Alert.alert("Atenção", "Preencha nome, preço e categoria.");
+    categorias.forEach((categoria) => {
+      mapa[categoria.id] = categoria;
+    });
+
+    return mapa;
+  }, [categorias]);
+
+  function voltar() {
+    if (router.canGoBack()) {
+      router.back();
       return;
     }
 
-    const dadosProduto = {
-      nome: nome.trim(),
-      preco: preco.trim(),
-      categoria: categoria.trim(),
-      descricao: descricao.trim() || "Produto cadastrado temporariamente.",
-    };
+    router.push("/");
+  }
 
-    if (estaEditando) {
-      atualizarProduto(produtoEditandoId, dadosProduto);
-      setMensagemStatus("Produto atualizado no Zustand.");
-    } else {
-      adicionarProduto(dadosProduto);
-      setMensagemStatus("Produto adicionado no Zustand.");
+  function limparCampos() {
+    setProdutoEditando(null);
+    setNome("");
+    setPreco("");
+    setDescricao("");
+    setCategoriaId(categorias[0]?.id || "acessorios");
+  }
+
+  function mostrarMensagem(texto) {
+    const horario = new Date().toLocaleTimeString();
+
+    setMensagem(`${texto} (${horario})`);
+  }
+
+  function salvarProduto() {
+    const nomeTratado = nome.trim();
+    const precoTratado = preco.trim().replace(",", ".");
+    const descricaoTratada = descricao.trim();
+
+    if (!nomeTratado) {
+      Alert.alert("Campo obrigatório", "Informe o nome do produto.");
+      return;
     }
 
+    if (!precoTratado || Number.isNaN(Number(precoTratado))) {
+      Alert.alert("Campo inválido", "Informe um preço válido.");
+      return;
+    }
+
+    if (!descricaoTratada) {
+      Alert.alert("Campo obrigatório", "Informe a descrição do produto.");
+      return;
+    }
+
+    const categoriaSelecionada = categoriasPorId[categoriaId];
+
+    const dadosProduto = {
+      nome: nomeTratado,
+      preco: Number(precoTratado),
+      descricao: descricaoTratada,
+      categoriaId,
+      categoria: categoriaSelecionada?.nome || "Sem categoria",
+      imagem: produtoEditando?.imagem || null,
+    };
+
+    if (produtoEditando) {
+      editarProduto(produtoEditando.id, dadosProduto);
+      mostrarMensagem("Produto editado com sucesso");
+      limparCampos();
+      return;
+    }
+
+    adicionarProduto(dadosProduto);
+    mostrarMensagem("Produto adicionado com sucesso");
     limparCampos();
   }
 
   function iniciarEdicao(produto) {
-    setProdutoEditandoId(produto.id);
-    setNome(produto.nome);
-    setPreco(produto.preco);
-    setCategoria(produto.categoria);
-    setDescricao(produto.descricao);
-    setMensagemStatus(`Editando produto: ${produto.nome}`);
+    setProdutoEditando(produto);
+    setNome(produto.nome || "");
+    setPreco(String(produto.preco || ""));
+    setDescricao(produto.descricao || "");
+    setCategoriaId(produto.categoriaId || categorias[0]?.id || "acessorios");
   }
 
-  function removerProdutoDireto(id) {
-    removerProduto(id);
+  function confirmarRemocao(produto) {
+    Alert.alert(
+      "Remover produto",
+      `Deseja remover "${produto.nome}"?`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Remover",
+          style: "destructive",
+          onPress: () => {
+            removerProduto(produto.id);
+            mostrarMensagem("Produto removido com sucesso");
+          },
+        },
+      ]
+    );
+  }
 
-    if (String(produtoEditandoId) === String(id)) {
-      limparCampos();
+  function restaurarMock() {
+    restaurarProdutosDoMock();
+    limparCampos();
+    mostrarMensagem("Produtos restaurados do mock");
+  }
+
+  function formatarPreco(valor) {
+    const numero = Number(valor);
+
+    if (Number.isNaN(numero)) {
+      return "R$ 0,00";
     }
 
-    setMensagemStatus("Produto removido do Zustand.");
-  }
-
-  function restaurarProdutosDoMock() {
-    resetarProdutos();
-    limparCampos();
-
-    const horario = new Date().toLocaleTimeString();
-
-    setMensagemStatus(
-      `Produtos restaurados do mock às ${horario}. Total original: ${totalOriginalMock}.`
-    );
+    return `R$ ${numero.toFixed(2).replace(".", ",")}`;
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.title}>Administração</Text>
+        <Pressable style={styles.backButton} onPress={voltar}>
+          <Text style={styles.backButtonText}>Voltar</Text>
+        </Pressable>
+
+        <Text style={styles.title}>Administração de Produtos</Text>
 
         <Text style={styles.subtitle}>
-          Tela administrativa temporária usando Zustand para gerenciamento global
-          de produtos.
+          CRUD temporário com Zustand. Depois, esta tela pode ser conectada ao
+          Supabase.
         </Text>
       </View>
 
-      <View style={styles.warningBox}>
-        <Text style={styles.warningTitle}>Modo temporário</Text>
+      <View style={styles.restoreCard}>
+        <Text style={styles.cardTitle}>Controle do mock</Text>
 
-        <Text style={styles.warningText}>
-          Este CRUD usa Zustand e altera os dados apenas durante a execução do
-          app. Quando o Supabase estiver pronto, as funções de criar, editar e
-          remover serão conectadas ao back-end real.
-        </Text>
-      </View>
+        <View style={styles.statsRow}>
+          <View style={styles.statBox}>
+            <Text style={styles.statNumber}>{produtos.length}</Text>
+            <Text style={styles.statLabel}>Produtos atuais</Text>
+          </View>
 
-      <View style={styles.resetArea}>
-        <Text style={styles.resetTitle}>Restaurar mock</Text>
+          <View style={styles.statBox}>
+            <Text style={styles.statNumber}>{totalOriginalMock}</Text>
+            <Text style={styles.statLabel}>Total original</Text>
+          </View>
 
-        <Text style={styles.resetDescription}>
-          Produtos atuais: {produtos.length} | Total original do mock:{" "}
-          {totalOriginalMock} | Versão do reset: {resetVersao}
-        </Text>
+          <View style={styles.statBox}>
+            <Text style={styles.statNumber}>{resetVersao}</Text>
+            <Text style={styles.statLabel}>Versão reset</Text>
+          </View>
+        </View>
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.resetMainButton,
-            pressed && styles.resetMainButtonPressed,
-          ]}
-          onPress={restaurarProdutosDoMock}
-          onPressIn={restaurarProdutosDoMock}
-        >
-          <Text style={styles.resetMainButtonText}>
+        <Pressable style={styles.restoreButton} onPress={restaurarMock}>
+          <Text style={styles.restoreButtonText}>
             Restaurar produtos do mock
           </Text>
         </Pressable>
+
+        {mensagem ? <Text style={styles.successMessage}>{mensagem}</Text> : null}
       </View>
 
-      {mensagemStatus ? (
-        <View style={styles.statusBox}>
-          <Text style={styles.statusText}>{mensagemStatus}</Text>
-        </View>
-      ) : null}
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>
-          {estaEditando ? "Editar produto" : "Cadastrar produto"}
+      <View style={styles.formCard}>
+        <Text style={styles.cardTitle}>
+          {produtoEditando ? "Editar produto" : "Adicionar produto"}
         </Text>
 
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nome do produto</Text>
+        <Text style={styles.label}>Nome</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Nome do produto"
+          value={nome}
+          onChangeText={setNome}
+        />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Ex: Camiseta LUTB"
-              placeholderTextColor="#777777"
-              value={nome}
-              onChangeText={setNome}
-            />
-          </View>
+        <Text style={styles.label}>Preço</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Exemplo: 39.90"
+          value={preco}
+          onChangeText={setPreco}
+          keyboardType="decimal-pad"
+        />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Preço</Text>
+        <Text style={styles.label}>Descrição</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder="Descrição do produto"
+          value={descricao}
+          onChangeText={setDescricao}
+          multiline
+          textAlignVertical="top"
+        />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Ex: 89,90"
-              placeholderTextColor="#777777"
-              keyboardType="decimal-pad"
-              value={preco}
-              onChangeText={setPreco}
-            />
-          </View>
+        <Text style={styles.label}>Categoria</Text>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Categoria</Text>
+        <View style={styles.categoryOptions}>
+          {categorias.map((categoria) => {
+            const selecionada = categoriaId === categoria.id;
 
-            <TextInput
-              style={styles.input}
-              placeholder="Ex: Camisetas"
-              placeholderTextColor="#777777"
-              value={categoria}
-              onChangeText={setCategoria}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Descrição</Text>
-
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Descrição do produto"
-              placeholderTextColor="#777777"
-              multiline
-              value={descricao}
-              onChangeText={setDescricao}
-            />
-          </View>
-
-          <Pressable style={styles.primaryButton} onPress={salvarProduto}>
-            <Text style={styles.primaryButtonText}>
-              {estaEditando ? "Salvar alterações" : "Adicionar produto"}
-            </Text>
-          </Pressable>
-
-          <Pressable style={styles.secondaryButton} onPress={limparCampos}>
-            <Text style={styles.secondaryButtonText}>
-              {estaEditando ? "Cancelar edição" : "Limpar campos"}
-            </Text>
-          </Pressable>
+            return (
+              <Pressable
+                key={categoria.id}
+                style={[
+                  styles.categoryOption,
+                  selecionada && styles.categoryOptionSelected,
+                ]}
+                onPress={() => setCategoriaId(categoria.id)}
+              >
+                <Text
+                  style={[
+                    styles.categoryOptionText,
+                    selecionada && styles.categoryOptionTextSelected,
+                  ]}
+                >
+                  {categoria.nome}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
+
+        <Pressable style={styles.saveButton} onPress={salvarProduto}>
+          <Text style={styles.saveButtonText}>
+            {produtoEditando ? "Salvar edição" : "Adicionar produto"}
+          </Text>
+        </Pressable>
+
+        {produtoEditando ? (
+          <Pressable style={styles.cancelButton} onPress={limparCampos}>
+            <Text style={styles.cancelButtonText}>Cancelar edição</Text>
+          </Pressable>
+        ) : null}
       </View>
 
-      <View style={styles.section}>
+      <View style={styles.listArea}>
         <Text style={styles.sectionTitle}>Produtos cadastrados</Text>
 
-        <View style={styles.counterBox}>
-          <Text style={styles.counterText}>
-            Total de produtos no Zustand: {produtos.length}
-          </Text>
-        </View>
+        {produtos.map((produto) => {
+          const categoria = categoriasPorId[produto.categoriaId];
 
-        {produtos.length === 0 ? (
-          <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>Nenhum produto cadastrado.</Text>
-          </View>
-        ) : (
-          produtos.map((produto) => (
-            <View key={String(produto.id)} style={styles.productCard}>
-              <View style={styles.productInfo}>
-                <Text style={styles.productName}>{produto.nome}</Text>
+          return (
+            <View key={produto.id} style={styles.productCard}>
+              <View style={styles.productHeader}>
+                <View style={styles.productTitleBox}>
+                  <Text style={styles.productName}>{produto.nome}</Text>
+                  <Text style={styles.productId}>ID: {produto.id}</Text>
+                </View>
 
-                <Text style={styles.productMeta}>
-                  Categoria: {produto.categoria}
-                </Text>
-
-                <Text style={styles.productPrice}>R$ {produto.preco}</Text>
-
-                <Text style={styles.productDescription}>
-                  {produto.descricao}
+                <Text style={styles.productPrice}>
+                  {formatarPreco(produto.preco)}
                 </Text>
               </View>
 
-              <View style={styles.productActions}>
+              <Text style={styles.productDescription}>
+                {produto.descricao}
+              </Text>
+
+              <View style={styles.relationshipBox}>
+                <Text style={styles.relationshipText}>
+                  Categoria: {categoria?.nome || produto.categoria || "Sem categoria"}
+                </Text>
+                <Text style={styles.relationshipSubtext}>
+                  categoriaId: {produto.categoriaId || "não informado"}
+                </Text>
+              </View>
+
+              <View style={styles.actionRow}>
                 <Pressable
-                  style={styles.editButton}
+                  style={[styles.actionButton, styles.editButton]}
                   onPress={() => iniciarEdicao(produto)}
                 >
-                  <Text style={styles.editButtonText}>Editar</Text>
+                  <Text style={styles.actionButtonText}>Editar</Text>
                 </Pressable>
 
                 <Pressable
-                  style={styles.deleteButton}
-                  onPress={() => removerProdutoDireto(produto.id)}
+                  style={[styles.actionButton, styles.deleteButton]}
+                  onPress={() => confirmarRemocao(produto)}
                 >
-                  <Text style={styles.deleteButtonText}>Remover</Text>
+                  <Text style={styles.actionButtonText}>Remover</Text>
                 </Pressable>
               </View>
             </View>
-          ))
-        )}
-      </View>
-
-      <View style={styles.buttons}>
-        <Link href="/catalogo" asChild>
-          <Pressable style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Ver catálogo</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/" asChild>
-          <Pressable style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>Voltar para Home</Text>
-          </Pressable>
-        </Link>
+          );
+        })}
       </View>
     </ScrollView>
   );
@@ -282,249 +331,250 @@ export default function AdminProdutos() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
   },
   content: {
     padding: 20,
     paddingBottom: 40,
   },
   header: {
-    backgroundColor: "#171717",
-    borderRadius: 24,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
+    marginBottom: 18,
+  },
+  backButton: {
+    alignSelf: "flex-start",
+    backgroundColor: "#1f1f1f",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginBottom: 18,
+  },
+  backButtonText: {
+    color: "#ffffff",
+    fontWeight: "800",
   },
   title: {
-    color: "#ffffff",
     fontSize: 30,
     fontWeight: "900",
-    marginBottom: 10,
+    color: "#1f1f1f",
   },
   subtitle: {
-    color: "#cfcfcf",
+    marginTop: 8,
     fontSize: 15,
     lineHeight: 22,
+    color: "#5f5f5f",
   },
-  warningBox: {
-    marginTop: 20,
-    backgroundColor: "#2a2111",
+  restoreCard: {
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 18,
+    marginBottom: 18,
     borderWidth: 1,
-    borderColor: "#725b26",
+    borderColor: "#e0d8ce",
   },
-  warningTitle: {
-    color: "#ffe0a3",
-    fontSize: 17,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  warningText: {
-    color: "#f0d8aa",
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  resetArea: {
-    marginTop: 20,
-    backgroundColor: "#151515",
-    borderRadius: 20,
+  formCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
     padding: 18,
-    borderWidth: 2,
-    borderColor: "#ffffff",
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#e0d8ce",
   },
-  resetTitle: {
-    color: "#ffffff",
+  cardTitle: {
     fontSize: 20,
     fontWeight: "900",
-    marginBottom: 8,
-  },
-  resetDescription: {
-    color: "#cfcfcf",
-    fontSize: 14,
-    lineHeight: 21,
+    color: "#1f1f1f",
     marginBottom: 14,
   },
-  resetMainButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 16,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  resetMainButtonPressed: {
-    opacity: 0.65,
-  },
-  resetMainButtonText: {
-    color: "#000000",
-    fontSize: 16,
-    fontWeight: "900",
-  },
-  statusBox: {
-    marginTop: 20,
-    backgroundColor: "#112a18",
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#2f7a43",
-  },
-  statusText: {
-    color: "#bff5cb",
-    fontSize: 14,
-    fontWeight: "800",
-    lineHeight: 21,
-  },
-  section: {
-    marginTop: 28,
-  },
-  sectionTitle: {
-    color: "#ffffff",
-    fontSize: 22,
-    fontWeight: "900",
-    marginBottom: 14,
-  },
-  form: {
-    backgroundColor: "#171717",
-    borderRadius: 22,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "800",
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: "#0f0f0f",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#333333",
-    color: "#ffffff",
-    fontSize: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-  },
-  textArea: {
-    minHeight: 90,
-    textAlignVertical: "top",
-  },
-  primaryButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  primaryButtonText: {
-    color: "#000000",
-    fontSize: 16,
-    fontWeight: "900",
-  },
-  secondaryButton: {
-    borderWidth: 1,
-    borderColor: "#ffffff",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: 12,
-  },
-  secondaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "800",
-  },
-  counterBox: {
-    backgroundColor: "#171717",
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-    marginBottom: 14,
-  },
-  counterText: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "800",
-  },
-  emptyBox: {
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  emptyText: {
-    color: "#cfcfcf",
-    fontSize: 15,
-    textAlign: "center",
-  },
-  productCard: {
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-    marginBottom: 12,
-  },
-  productInfo: {
-    marginBottom: 14,
-  },
-  productName: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "900",
-    marginBottom: 6,
-  },
-  productMeta: {
-    color: "#a8a8a8",
-    fontSize: 14,
-    marginBottom: 6,
-  },
-  productPrice: {
-    color: "#ffffff",
-    fontSize: 17,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  productDescription: {
-    color: "#cfcfcf",
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  productActions: {
+  statsRow: {
     flexDirection: "row",
     gap: 10,
   },
-  editButton: {
+  statBox: {
     flex: 1,
-    backgroundColor: "#ffffff",
-    paddingVertical: 12,
-    borderRadius: 12,
+    backgroundColor: "#f5f1eb",
+    borderRadius: 14,
+    padding: 12,
     alignItems: "center",
   },
-  editButtonText: {
-    color: "#000000",
-    fontSize: 15,
+  statNumber: {
+    fontSize: 22,
     fontWeight: "900",
+    color: "#1f1f1f",
+  },
+  statLabel: {
+    marginTop: 4,
+    fontSize: 12,
+    color: "#666666",
+    textAlign: "center",
+  },
+  restoreButton: {
+    marginTop: 16,
+    backgroundColor: "#245c3c",
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  restoreButtonText: {
+    color: "#ffffff",
+    fontWeight: "900",
+  },
+  successMessage: {
+    marginTop: 12,
+    backgroundColor: "#dff3e6",
+    color: "#245c3c",
+    padding: 10,
+    borderRadius: 12,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: "#2c2c2c",
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: "#f7f4ef",
+    borderWidth: 1,
+    borderColor: "#ded6cc",
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 14,
+    fontSize: 15,
+    color: "#1f1f1f",
+  },
+  textArea: {
+    minHeight: 90,
+  },
+  categoryOptions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 16,
+  },
+  categoryOption: {
+    backgroundColor: "#f7f4ef",
+    borderWidth: 1,
+    borderColor: "#ded6cc",
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  categoryOptionSelected: {
+    backgroundColor: "#1f1f1f",
+    borderColor: "#1f1f1f",
+  },
+  categoryOptionText: {
+    color: "#2c2c2c",
+    fontWeight: "800",
+  },
+  categoryOptionTextSelected: {
+    color: "#ffffff",
+  },
+  saveButton: {
+    backgroundColor: "#1f1f1f",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  saveButtonText: {
+    color: "#ffffff",
+    fontWeight: "900",
+  },
+  cancelButton: {
+    marginTop: 10,
+    backgroundColor: "#e8dfd4",
+    paddingVertical: 13,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    color: "#1f1f1f",
+    fontWeight: "900",
+  },
+  listArea: {
+    gap: 14,
+  },
+  sectionTitle: {
+    fontSize: 21,
+    fontWeight: "900",
+    color: "#1f1f1f",
+    marginBottom: 2,
+  },
+  productCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#e0d8ce",
+    marginBottom: 14,
+  },
+  productHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  productTitleBox: {
+    flex: 1,
+  },
+  productName: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: "#1f1f1f",
+  },
+  productId: {
+    marginTop: 4,
+    fontSize: 12,
+    color: "#777777",
+  },
+  productPrice: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: "#245c3c",
+  },
+  productDescription: {
+    marginTop: 12,
+    fontSize: 14,
+    lineHeight: 21,
+    color: "#5f5f5f",
+  },
+  relationshipBox: {
+    marginTop: 14,
+    backgroundColor: "#f5f1eb",
+    borderRadius: 14,
+    padding: 12,
+  },
+  relationshipText: {
+    fontSize: 14,
+    fontWeight: "900",
+    color: "#2c2c2c",
+  },
+  relationshipSubtext: {
+    marginTop: 4,
+    fontSize: 12,
+    color: "#777777",
+  },
+  actionRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 14,
+  },
+  actionButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  editButton: {
+    backgroundColor: "#2f5f9f",
   },
   deleteButton: {
-    flex: 1,
-    backgroundColor: "#2a1111",
-    borderWidth: 1,
-    borderColor: "#703030",
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
+    backgroundColor: "#9f2f2f",
   },
-  deleteButtonText: {
-    color: "#ffb3b3",
-    fontSize: 15,
+  actionButtonText: {
+    color: "#ffffff",
     fontWeight: "900",
-  },
-  buttons: {
-    marginTop: 28,
   },
 });
