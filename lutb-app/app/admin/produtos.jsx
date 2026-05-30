@@ -10,70 +10,86 @@ import {
   View,
 } from "react-native";
 
-import * as ProdutosData from "../../src/data/mockProdutos";
-
-function carregarProdutosIniciais() {
-  if (Array.isArray(ProdutosData.produtos)) {
-    return ProdutosData.produtos;
-  }
-
-  if (Array.isArray(ProdutosData.default)) {
-    return ProdutosData.default;
-  }
-
-  if (ProdutosData.default && Array.isArray(ProdutosData.default.produtos)) {
-    return ProdutosData.default.produtos;
-  }
-
-  return [];
-}
+import { useProdutosStore } from "../../src/store/produtosStore";
 
 export default function AdminProdutos() {
-  const [produtos, setProdutos] = useState(carregarProdutosIniciais);
+  const produtos = useProdutosStore((state) => state.produtos);
+  const adicionarProduto = useProdutosStore((state) => state.adicionarProduto);
+  const atualizarProduto = useProdutosStore((state) => state.atualizarProduto);
+  const removerProduto = useProdutosStore((state) => state.removerProduto);
+  const resetarProdutos = useProdutosStore((state) => state.resetarProdutos);
+
+  const [produtoEditandoId, setProdutoEditandoId] = useState(null);
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
   const [categoria, setCategoria] = useState("");
   const [descricao, setDescricao] = useState("");
 
+  const estaEditando = produtoEditandoId !== null;
+
   function limparCampos() {
+    setProdutoEditandoId(null);
     setNome("");
     setPreco("");
     setCategoria("");
     setDescricao("");
   }
 
-  function cadastrarProduto() {
+  function salvarProduto() {
     if (!nome.trim() || !preco.trim() || !categoria.trim()) {
       Alert.alert("Atenção", "Preencha nome, preço e categoria.");
       return;
     }
 
-    const novoProduto = {
-      id: String(Date.now()),
+    const dadosProduto = {
       nome: nome.trim(),
       preco: preco.trim(),
       categoria: categoria.trim(),
       descricao: descricao.trim() || "Produto cadastrado temporariamente.",
-      imagem: null,
     };
 
-    setProdutos((listaAtual) => [novoProduto, ...listaAtual]);
+    if (estaEditando) {
+      atualizarProduto(produtoEditandoId, dadosProduto);
+
+      Alert.alert(
+        "Produto atualizado",
+        "Produto atualizado apenas no Zustand. Ainda não foi salvo no Supabase."
+      );
+    } else {
+      adicionarProduto(dadosProduto);
+
+      Alert.alert(
+        "Produto adicionado",
+        "Produto adicionado apenas no Zustand. Ainda não foi salvo no Supabase."
+      );
+    }
+
+    limparCampos();
+  }
+
+  function iniciarEdicao(produto) {
+    setProdutoEditandoId(produto.id);
+    setNome(produto.nome);
+    setPreco(produto.preco);
+    setCategoria(produto.categoria);
+    setDescricao(produto.descricao);
+  }
+
+  function removerProdutoDireto(id) {
+    removerProduto(id);
+
+    if (produtoEditandoId === id) {
+      limparCampos();
+    }
+  }
+
+  function restaurarProdutos() {
+    resetarProdutos();
     limparCampos();
 
     Alert.alert(
-      "Produto adicionado",
-      "Produto inserido apenas no estado local da tela. Ainda não foi salvo no Supabase."
-    );
-  }
-
-  function removerProdutoPorIndice(indiceParaRemover) {
-    setProdutos((listaAtual) =>
-      listaAtual.filter((_, indiceAtual) => indiceAtual !== indiceParaRemover)
-    );
-
-    Alert.alert(
-      "Produto removido",
-      "Produto removido apenas da lista temporária desta tela."
+      "Produtos restaurados",
+      "A lista original do mock foi restaurada no Zustand."
     );
   }
 
@@ -82,22 +98,24 @@ export default function AdminProdutos() {
       <View style={styles.header}>
         <Text style={styles.title}>Administração</Text>
         <Text style={styles.subtitle}>
-          Tela administrativa temporária para gerenciamento visual dos produtos
-          da LUTB.
+          Tela administrativa temporária usando Zustand para gerenciamento global
+          de produtos.
         </Text>
       </View>
 
       <View style={styles.warningBox}>
         <Text style={styles.warningTitle}>Modo temporário</Text>
         <Text style={styles.warningText}>
-          Os produtos adicionados ou removidos nesta tela não são salvos no banco
-          de dados. Quando o Supabase estiver pronto, esta tela poderá usar
-          operações reais de cadastro, edição e exclusão.
+          Este CRUD usa Zustand e altera os dados apenas durante a execução do
+          app. Quando o Supabase estiver pronto, as funções de criar, editar e
+          remover serão conectadas ao back-end real.
         </Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Cadastrar produto</Text>
+        <Text style={styles.sectionTitle}>
+          {estaEditando ? "Editar produto" : "Cadastrar produto"}
+        </Text>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
@@ -146,12 +164,16 @@ export default function AdminProdutos() {
             />
           </View>
 
-          <Pressable style={styles.primaryButton} onPress={cadastrarProduto}>
-            <Text style={styles.primaryButtonText}>Adicionar produto</Text>
+          <Pressable style={styles.primaryButton} onPress={salvarProduto}>
+            <Text style={styles.primaryButtonText}>
+              {estaEditando ? "Salvar alterações" : "Adicionar produto"}
+            </Text>
           </Pressable>
 
           <Pressable style={styles.secondaryButton} onPress={limparCampos}>
-            <Text style={styles.secondaryButtonText}>Limpar campos</Text>
+            <Text style={styles.secondaryButtonText}>
+              {estaEditando ? "Cancelar edição" : "Limpar campos"}
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -161,54 +183,56 @@ export default function AdminProdutos() {
 
         <View style={styles.counterBox}>
           <Text style={styles.counterText}>
-            Total de produtos na lista: {produtos.length}
+            Total de produtos no Zustand: {produtos.length}
           </Text>
         </View>
 
         {produtos.length === 0 ? (
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>
-              Nenhum produto encontrado no mock.
-            </Text>
+            <Text style={styles.emptyText}>Nenhum produto cadastrado.</Text>
           </View>
         ) : (
-          produtos.map((produto, indice) => (
-            <View
-              key={`${produto.id || produto.nome || "produto"}-${indice}`}
-              style={styles.productCard}
-            >
+          produtos.map((produto) => (
+            <View key={produto.id} style={styles.productCard}>
               <View style={styles.productInfo}>
-                <Text style={styles.productName}>
-                  {produto.nome || produto.name || "Produto sem nome"}
-                </Text>
+                <Text style={styles.productName}>{produto.nome}</Text>
 
                 <Text style={styles.productMeta}>
-                  Categoria: {produto.categoria || "Sem categoria"}
+                  Categoria: {produto.categoria}
                 </Text>
 
-                <Text style={styles.productPrice}>
-                  R$ {produto.preco || produto.price || "0,00"}
-                </Text>
+                <Text style={styles.productPrice}>R$ {produto.preco}</Text>
 
                 <Text style={styles.productDescription}>
-                  {produto.descricao ||
-                    produto.description ||
-                    "Sem descrição cadastrada."}
+                  {produto.descricao}
                 </Text>
               </View>
 
-              <Pressable
-                style={styles.deleteButton}
-                onPress={() => removerProdutoPorIndice(indice)}
-              >
-                <Text style={styles.deleteButtonText}>Remover</Text>
-              </Pressable>
+              <View style={styles.productActions}>
+                <Pressable
+                  style={styles.editButton}
+                  onPress={() => iniciarEdicao(produto)}
+                >
+                  <Text style={styles.editButtonText}>Editar</Text>
+                </Pressable>
+
+                <Pressable
+                  style={styles.deleteButton}
+                  onPress={() => removerProdutoDireto(produto.id)}
+                >
+                  <Text style={styles.deleteButtonText}>Remover</Text>
+                </Pressable>
+              </View>
             </View>
           ))
         )}
       </View>
 
       <View style={styles.buttons}>
+        <Pressable style={styles.resetButton} onPress={restaurarProdutos}>
+          <Text style={styles.resetButtonText}>Restaurar produtos do mock</Text>
+        </Pressable>
+
         <Link href="/catalogo" asChild>
           <Pressable style={styles.primaryButton}>
             <Text style={styles.primaryButtonText}>Ver catálogo</Text>
@@ -392,7 +416,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
   },
+  productActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  editButton: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  editButtonText: {
+    color: "#000000",
+    fontSize: 15,
+    fontWeight: "900",
+  },
   deleteButton: {
+    flex: 1,
     backgroundColor: "#2a1111",
     borderWidth: 1,
     borderColor: "#703030",
@@ -407,5 +448,19 @@ const styles = StyleSheet.create({
   },
   buttons: {
     marginTop: 28,
+  },
+  resetButton: {
+    backgroundColor: "#171717",
+    borderWidth: 1,
+    borderColor: "#555555",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  resetButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "900",
   },
 });
