@@ -1,9 +1,17 @@
 import { create } from "zustand";
 import * as ProdutosData from "../data/mockProdutos";
 
-function carregarProdutosIniciais() {
+function carregarProdutosDoArquivo() {
   if (Array.isArray(ProdutosData.produtos)) {
     return ProdutosData.produtos;
+  }
+
+  if (Array.isArray(ProdutosData.mockProdutos)) {
+    return ProdutosData.mockProdutos;
+  }
+
+  if (Array.isArray(ProdutosData.produtosMock)) {
+    return ProdutosData.produtosMock;
   }
 
   if (Array.isArray(ProdutosData.default)) {
@@ -14,15 +22,23 @@ function carregarProdutosIniciais() {
     return ProdutosData.default.produtos;
   }
 
+  if (ProdutosData.default && Array.isArray(ProdutosData.default.mockProdutos)) {
+    return ProdutosData.default.mockProdutos;
+  }
+
+  if (ProdutosData.default && Array.isArray(ProdutosData.default.produtosMock)) {
+    return ProdutosData.default.produtosMock;
+  }
+
   return [];
 }
 
 function normalizarProduto(produto, indice) {
   return {
-    id: String(produto.id || produto.codigo || `produto-${indice + 1}`),
+    id: String(produto.id || produto.codigo || `mock-produto-${indice + 1}`),
     nome: produto.nome || produto.name || "Produto sem nome",
     preco: produto.preco || produto.price || "0,00",
-    categoria: produto.categoria || "Sem categoria",
+    categoria: produto.categoria || produto.category || "Sem categoria",
     descricao:
       produto.descricao ||
       produto.description ||
@@ -31,14 +47,34 @@ function normalizarProduto(produto, indice) {
   };
 }
 
-const produtosIniciais = carregarProdutosIniciais().map(normalizarProduto);
+function clonarProduto(produto) {
+  return {
+    id: String(produto.id),
+    nome: produto.nome,
+    preco: produto.preco,
+    categoria: produto.categoria,
+    descricao: produto.descricao,
+    imagem: produto.imagem,
+  };
+}
+
+function clonarLista(lista) {
+  return lista.map((produto) => clonarProduto(produto));
+}
+
+const produtosOriginaisDoMock = carregarProdutosDoArquivo().map(
+  (produto, indice) => normalizarProduto(produto, indice)
+);
 
 export const useProdutosStore = create((set, get) => ({
-  produtos: produtosIniciais,
+  produtosOriginais: clonarLista(produtosOriginaisDoMock),
+  produtos: clonarLista(produtosOriginaisDoMock),
+  totalOriginalMock: produtosOriginaisDoMock.length,
+  resetVersao: 0,
 
   adicionarProduto: (produto) => {
     const novoProduto = {
-      id: String(Date.now()),
+      id: `novo-${Date.now()}`,
       nome: produto.nome,
       preco: produto.preco,
       categoria: produto.categoria,
@@ -79,8 +115,12 @@ export const useProdutosStore = create((set, get) => ({
   },
 
   resetarProdutos: () => {
-    set({
-      produtos: produtosIniciais,
-    });
+    const produtosRestaurados = clonarLista(get().produtosOriginais);
+
+    set((state) => ({
+      produtos: produtosRestaurados,
+      totalOriginalMock: produtosRestaurados.length,
+      resetVersao: state.resetVersao + 1,
+    }));
   },
 }));

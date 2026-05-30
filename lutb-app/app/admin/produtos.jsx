@@ -14,6 +14,9 @@ import { useProdutosStore } from "../../src/store/produtosStore";
 
 export default function AdminProdutos() {
   const produtos = useProdutosStore((state) => state.produtos);
+  const totalOriginalMock = useProdutosStore((state) => state.totalOriginalMock);
+  const resetVersao = useProdutosStore((state) => state.resetVersao);
+
   const adicionarProduto = useProdutosStore((state) => state.adicionarProduto);
   const atualizarProduto = useProdutosStore((state) => state.atualizarProduto);
   const removerProduto = useProdutosStore((state) => state.removerProduto);
@@ -24,6 +27,7 @@ export default function AdminProdutos() {
   const [preco, setPreco] = useState("");
   const [categoria, setCategoria] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [mensagemStatus, setMensagemStatus] = useState("");
 
   const estaEditando = produtoEditandoId !== null;
 
@@ -50,18 +54,10 @@ export default function AdminProdutos() {
 
     if (estaEditando) {
       atualizarProduto(produtoEditandoId, dadosProduto);
-
-      Alert.alert(
-        "Produto atualizado",
-        "Produto atualizado apenas no Zustand. Ainda não foi salvo no Supabase."
-      );
+      setMensagemStatus("Produto atualizado no Zustand.");
     } else {
       adicionarProduto(dadosProduto);
-
-      Alert.alert(
-        "Produto adicionado",
-        "Produto adicionado apenas no Zustand. Ainda não foi salvo no Supabase."
-      );
+      setMensagemStatus("Produto adicionado no Zustand.");
     }
 
     limparCampos();
@@ -73,23 +69,27 @@ export default function AdminProdutos() {
     setPreco(produto.preco);
     setCategoria(produto.categoria);
     setDescricao(produto.descricao);
+    setMensagemStatus(`Editando produto: ${produto.nome}`);
   }
 
   function removerProdutoDireto(id) {
     removerProduto(id);
 
-    if (produtoEditandoId === id) {
+    if (String(produtoEditandoId) === String(id)) {
       limparCampos();
     }
+
+    setMensagemStatus("Produto removido do Zustand.");
   }
 
-  function restaurarProdutos() {
+  function restaurarProdutosDoMock() {
     resetarProdutos();
     limparCampos();
 
-    Alert.alert(
-      "Produtos restaurados",
-      "A lista original do mock foi restaurada no Zustand."
+    const horario = new Date().toLocaleTimeString();
+
+    setMensagemStatus(
+      `Produtos restaurados do mock às ${horario}. Total original: ${totalOriginalMock}.`
     );
   }
 
@@ -97,6 +97,7 @@ export default function AdminProdutos() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>Administração</Text>
+
         <Text style={styles.subtitle}>
           Tela administrativa temporária usando Zustand para gerenciamento global
           de produtos.
@@ -105,12 +106,41 @@ export default function AdminProdutos() {
 
       <View style={styles.warningBox}>
         <Text style={styles.warningTitle}>Modo temporário</Text>
+
         <Text style={styles.warningText}>
           Este CRUD usa Zustand e altera os dados apenas durante a execução do
           app. Quando o Supabase estiver pronto, as funções de criar, editar e
           remover serão conectadas ao back-end real.
         </Text>
       </View>
+
+      <View style={styles.resetArea}>
+        <Text style={styles.resetTitle}>Restaurar mock</Text>
+
+        <Text style={styles.resetDescription}>
+          Produtos atuais: {produtos.length} | Total original do mock:{" "}
+          {totalOriginalMock} | Versão do reset: {resetVersao}
+        </Text>
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.resetMainButton,
+            pressed && styles.resetMainButtonPressed,
+          ]}
+          onPress={restaurarProdutosDoMock}
+          onPressIn={restaurarProdutosDoMock}
+        >
+          <Text style={styles.resetMainButtonText}>
+            Restaurar produtos do mock
+          </Text>
+        </Pressable>
+      </View>
+
+      {mensagemStatus ? (
+        <View style={styles.statusBox}>
+          <Text style={styles.statusText}>{mensagemStatus}</Text>
+        </View>
+      ) : null}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>
@@ -120,6 +150,7 @@ export default function AdminProdutos() {
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Nome do produto</Text>
+
             <TextInput
               style={styles.input}
               placeholder="Ex: Camiseta LUTB"
@@ -131,6 +162,7 @@ export default function AdminProdutos() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Preço</Text>
+
             <TextInput
               style={styles.input}
               placeholder="Ex: 89,90"
@@ -143,6 +175,7 @@ export default function AdminProdutos() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Categoria</Text>
+
             <TextInput
               style={styles.input}
               placeholder="Ex: Camisetas"
@@ -154,6 +187,7 @@ export default function AdminProdutos() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Descrição</Text>
+
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Descrição do produto"
@@ -193,7 +227,7 @@ export default function AdminProdutos() {
           </View>
         ) : (
           produtos.map((produto) => (
-            <View key={produto.id} style={styles.productCard}>
+            <View key={String(produto.id)} style={styles.productCard}>
               <View style={styles.productInfo}>
                 <Text style={styles.productName}>{produto.nome}</Text>
 
@@ -229,10 +263,6 @@ export default function AdminProdutos() {
       </View>
 
       <View style={styles.buttons}>
-        <Pressable style={styles.resetButton} onPress={restaurarProdutos}>
-          <Text style={styles.resetButtonText}>Restaurar produtos do mock</Text>
-        </Pressable>
-
         <Link href="/catalogo" asChild>
           <Pressable style={styles.primaryButton}>
             <Text style={styles.primaryButtonText}>Ver catálogo</Text>
@@ -293,6 +323,54 @@ const styles = StyleSheet.create({
   warningText: {
     color: "#f0d8aa",
     fontSize: 14,
+    lineHeight: 21,
+  },
+  resetArea: {
+    marginTop: 20,
+    backgroundColor: "#151515",
+    borderRadius: 20,
+    padding: 18,
+    borderWidth: 2,
+    borderColor: "#ffffff",
+  },
+  resetTitle: {
+    color: "#ffffff",
+    fontSize: 20,
+    fontWeight: "900",
+    marginBottom: 8,
+  },
+  resetDescription: {
+    color: "#cfcfcf",
+    fontSize: 14,
+    lineHeight: 21,
+    marginBottom: 14,
+  },
+  resetMainButton: {
+    backgroundColor: "#ffffff",
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  resetMainButtonPressed: {
+    opacity: 0.65,
+  },
+  resetMainButtonText: {
+    color: "#000000",
+    fontSize: 16,
+    fontWeight: "900",
+  },
+  statusBox: {
+    marginTop: 20,
+    backgroundColor: "#112a18",
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#2f7a43",
+  },
+  statusText: {
+    color: "#bff5cb",
+    fontSize: 14,
+    fontWeight: "800",
     lineHeight: 21,
   },
   section: {
@@ -448,19 +526,5 @@ const styles = StyleSheet.create({
   },
   buttons: {
     marginTop: 28,
-  },
-  resetButton: {
-    backgroundColor: "#171717",
-    borderWidth: 1,
-    borderColor: "#555555",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  resetButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "900",
   },
 });

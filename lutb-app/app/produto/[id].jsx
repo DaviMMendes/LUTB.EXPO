@@ -1,110 +1,308 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { mockProdutos } from "../../src/data/mockProdutos";
+import { Link, useLocalSearchParams } from "expo-router";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-export default function ProdutoDetalhe() {
+import { useProdutosStore } from "../../src/store/produtosStore";
+
+function formatarPreco(preco) {
+  if (!preco) {
+    return "0,00";
+  }
+
+  return String(preco).replace("R$", "").trim();
+}
+
+function obterImagemProduto(imagem) {
+  if (!imagem) {
+    return null;
+  }
+
+  if (typeof imagem === "number") {
+    return imagem;
+  }
+
+  if (typeof imagem === "string") {
+    return { uri: imagem };
+  }
+
+  return imagem;
+}
+
+export default function ProdutoDetalhes() {
   const { id } = useLocalSearchParams();
 
-  const produto = mockProdutos.find((item) => item.id === id);
+  const produto = useProdutosStore((state) => state.buscarProdutoPorId(id));
 
   if (!produto) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Produto não encontrado</Text>
+      <View style={styles.notFoundContainer}>
+        <Text style={styles.notFoundTitle}>Produto não encontrado</Text>
 
-        <Pressable style={styles.button} onPress={() => router.push("/catalogo")}>
-          <Text style={styles.buttonText}>Voltar ao catálogo</Text>
-        </Pressable>
+        <Text style={styles.notFoundText}>
+          O produto pode ter sido removido no admin temporário ou o identificador
+          da rota não existe mais no Zustand.
+        </Text>
+
+        <Link href="/catalogo" asChild>
+          <Pressable style={styles.primaryButton}>
+            <Text style={styles.primaryButtonText}>Voltar ao catálogo</Text>
+          </Pressable>
+        </Link>
       </View>
     );
   }
 
+  const imagemProduto = obterImagemProduto(produto.imagem);
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Image source={produto.imagem} style={styles.image} />
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <View style={styles.imageBox}>
+        {imagemProduto ? (
+          <Image
+            source={imagemProduto}
+            style={styles.productImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <Text style={styles.imagePlaceholder}>LUTB</Text>
+        )}
+      </View>
 
-      <Text style={styles.title}>{produto.nome}</Text>
-      <Text style={styles.category}>{produto.categoria}</Text>
+      <View style={styles.infoBox}>
+        <Text style={styles.category}>
+          {produto.categoria || "Sem categoria"}
+        </Text>
 
-      <Text style={styles.price}>
-        R$ {produto.preco.toFixed(2).replace(".", ",")}
-      </Text>
+        <Text style={styles.title}>{produto.nome}</Text>
 
-      <Text style={styles.description}>{produto.descricao}</Text>
+        <Text style={styles.price}>R$ {formatarPreco(produto.preco)}</Text>
 
-      <Pressable style={styles.button}>
-        <Text style={styles.buttonText}>Adicionar aos favoritos</Text>
-      </Pressable>
+        <Text style={styles.description}>
+          {produto.descricao || "Produto sem descrição cadastrada."}
+        </Text>
+      </View>
 
-      <Pressable
-        style={styles.buttonSecondary}
-        onPress={() => router.push("/catalogo")}
-      >
-        <Text style={styles.buttonSecondaryText}>Voltar ao catálogo</Text>
-      </Pressable>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Informações técnicas</Text>
+
+        <View style={styles.detailCard}>
+          <Text style={styles.detailLabel}>ID do produto</Text>
+          <Text style={styles.detailValue}>{produto.id}</Text>
+        </View>
+
+        <View style={styles.detailCard}>
+          <Text style={styles.detailLabel}>Entidade principal</Text>
+          <Text style={styles.detailValue}>Produto</Text>
+        </View>
+
+        <View style={styles.detailCard}>
+          <Text style={styles.detailLabel}>Relacionamento</Text>
+          <Text style={styles.detailValue}>
+            Produto pertence à categoria: {produto.categoria || "Sem categoria"}
+          </Text>
+        </View>
+
+        <View style={styles.detailCard}>
+          <Text style={styles.detailLabel}>Fonte dos dados</Text>
+          <Text style={styles.detailValue}>
+            Zustand com dados temporários vindos do mock local
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.warningBox}>
+        <Text style={styles.warningTitle}>Modo temporário</Text>
+        <Text style={styles.warningText}>
+          Esta tela lê o produto pelo Zustand. Quando o Supabase estiver pronto,
+          os dados deverão vir do banco real.
+        </Text>
+      </View>
+
+      <View style={styles.buttons}>
+        <Link href="/catalogo" asChild>
+          <Pressable style={styles.primaryButton}>
+            <Text style={styles.primaryButtonText}>Voltar ao catálogo</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/admin/produtos" asChild>
+          <Pressable style={styles.secondaryButton}>
+            <Text style={styles.secondaryButtonText}>Editar no Admin</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/" asChild>
+          <Pressable style={styles.secondaryButton}>
+            <Text style={styles.secondaryButtonText}>Voltar para Home</Text>
+          </Pressable>
+        </Link>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: 24,
-    backgroundColor: "#FFF8F0",
+    flex: 1,
+    backgroundColor: "#0f0f0f",
   },
-  image: {
+  content: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  imageBox: {
+    height: 330,
+    backgroundColor: "#ffffff",
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+  },
+  productImage: {
     width: "100%",
-    height: 280,
-    borderRadius: 22,
-    backgroundColor: "#F7EDE2",
-    marginBottom: 22,
+    height: "100%",
   },
-  title: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: "#3A2A1A",
+  imagePlaceholder: {
+    color: "#000000",
+    fontSize: 34,
+    fontWeight: "900",
+    letterSpacing: 2,
+  },
+  infoBox: {
+    marginTop: 22,
+    backgroundColor: "#171717",
+    borderRadius: 24,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
   },
   category: {
-    marginTop: 6,
-    fontSize: 15,
-    color: "#8B5E3C",
-    fontWeight: "700",
-  },
-  price: {
-    marginTop: 14,
-    fontSize: 24,
+    color: "#a8a8a8",
+    fontSize: 14,
     fontWeight: "800",
-    color: "#3A2A1A",
+    marginBottom: 8,
+    textTransform: "uppercase",
   },
-  description: {
-    marginTop: 18,
-    marginBottom: 26,
-    fontSize: 16,
-    lineHeight: 24,
-    color: "#6B4E3D",
-  },
-  button: {
-    backgroundColor: "#8B5E3C",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
+  title: {
+    color: "#ffffff",
+    fontSize: 28,
+    fontWeight: "900",
     marginBottom: 12,
   },
-  buttonText: {
-    color: "#FFFFFF",
+  price: {
+    color: "#ffffff",
+    fontSize: 24,
+    fontWeight: "900",
+    marginBottom: 16,
+  },
+  description: {
+    color: "#d4d4d4",
     fontSize: 16,
+    lineHeight: 24,
+  },
+  section: {
+    marginTop: 26,
+  },
+  sectionTitle: {
+    color: "#ffffff",
+    fontSize: 22,
+    fontWeight: "900",
+    marginBottom: 14,
+  },
+  detailCard: {
+    backgroundColor: "#171717",
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    marginBottom: 12,
+  },
+  detailLabel: {
+    color: "#999999",
+    fontSize: 13,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+  detailValue: {
+    color: "#ffffff",
+    fontSize: 15,
+    lineHeight: 22,
     fontWeight: "700",
   },
-  buttonSecondary: {
+  warningBox: {
+    marginTop: 20,
+    backgroundColor: "#2a2111",
+    borderRadius: 18,
+    padding: 18,
     borderWidth: 1,
-    borderColor: "#8B5E3C",
+    borderColor: "#725b26",
+  },
+  warningTitle: {
+    color: "#ffe0a3",
+    fontSize: 17,
+    fontWeight: "900",
+    marginBottom: 8,
+  },
+  warningText: {
+    color: "#f0d8aa",
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  buttons: {
+    marginTop: 28,
+  },
+  primaryButton: {
+    backgroundColor: "#ffffff",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
   },
-  buttonSecondaryText: {
-    color: "#8B5E3C",
+  primaryButtonText: {
+    color: "#000000",
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "900",
+  },
+  secondaryButton: {
+    borderWidth: 1,
+    borderColor: "#ffffff",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  secondaryButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  notFoundContainer: {
+    flex: 1,
+    backgroundColor: "#0f0f0f",
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notFoundTitle: {
+    color: "#ffffff",
+    fontSize: 26,
+    fontWeight: "900",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  notFoundText: {
+    color: "#cfcfcf",
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: "center",
+    marginBottom: 22,
   },
 });
