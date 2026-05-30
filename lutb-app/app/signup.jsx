@@ -1,112 +1,260 @@
+import { Link, router } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { router } from "expo-router";
-import { useAuthStore } from "../src/stores/authStore";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 export default function Signup() {
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  const signup = useAuthStore((state) => state.signup);
-  const loading = useAuthStore((state) => state.loading);
-  const error = useAuthStore((state) => state.error);
-
-  async function handleSignup() {
-    if (!email || !password) {
-      Alert.alert("Erro", "Preencha e-mail e senha.");
+  function handleCadastro() {
+    if (
+      !nome.trim() ||
+      !email.trim() ||
+      !senha.trim() ||
+      !confirmarSenha.trim()
+    ) {
+      Alert.alert("Atenção", "Preencha todos os campos.");
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert("Erro", "A senha precisa ter pelo menos 6 caracteres.");
+    if (senha !== confirmarSenha) {
+      Alert.alert("Atenção", "As senhas não são iguais.");
       return;
     }
 
-    const success = await signup(email, password);
+    Alert.alert(
+      "Cadastro temporário",
+      "O cadastro real será integrado ao Supabase depois."
+    );
 
-    if (success) {
-      Alert.alert("Conta criada", "Cadastro realizado com sucesso.");
-      router.replace("/perfil");
-    }
+    router.push("/perfil");
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Criar conta</Text>
-      <Text style={styles.subtitle}>Cadastre-se para acessar o app LUTB.</Text>
+    <KeyboardAvoidingView
+      style={styles.keyboard}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.logo}>LUTB</Text>
+          <Text style={styles.title}>Criar conta</Text>
+          <Text style={styles.subtitle}>
+            Tela de cadastro preparada para receber autenticação real com
+            Supabase.
+          </Text>
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="E-mail"
-        placeholderTextColor="#9A7B61"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
+        <View style={styles.form}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Nome completo</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite seu nome"
+              placeholderTextColor="#777777"
+              value={nome}
+              onChangeText={setNome}
+            />
+          </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        placeholderTextColor="#9A7B61"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite seu email"
+              placeholderTextColor="#777777"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Senha</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Crie uma senha"
+              placeholderTextColor="#777777"
+              secureTextEntry
+              value={senha}
+              onChangeText={setSenha}
+            />
+          </View>
 
-      <Pressable style={styles.button} onPress={handleSignup} disabled={loading}>
-        <Text style={styles.buttonText}>
-          {loading ? "Cadastrando..." : "Cadastrar"}
-        </Text>
-      </Pressable>
-    </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Confirmar senha</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Repita a senha"
+              placeholderTextColor="#777777"
+              secureTextEntry
+              value={confirmarSenha}
+              onChangeText={setConfirmarSenha}
+            />
+          </View>
+
+          <Pressable style={styles.primaryButton} onPress={handleCadastro}>
+            <Text style={styles.primaryButtonText}>Cadastrar</Text>
+          </Pressable>
+
+          <Link href="/login" asChild>
+            <Pressable style={styles.secondaryButton}>
+              <Text style={styles.secondaryButtonText}>Já tenho conta</Text>
+            </Pressable>
+          </Link>
+        </View>
+
+        <View style={styles.infoBox}>
+          <Text style={styles.infoTitle}>Observação</Text>
+          <Text style={styles.infoText}>
+            Por enquanto, esta tela apenas simula o cadastro. Quando o banco
+            estiver pronto, ela poderá usar auth.signUp do Supabase.
+          </Text>
+        </View>
+
+        <Link href="/" asChild>
+          <Pressable style={styles.backButton}>
+            <Text style={styles.backButtonText}>Voltar para Home</Text>
+          </Pressable>
+        </Link>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboard: {
+    flex: 1,
+    backgroundColor: "#0f0f0f",
+  },
   container: {
     flex: 1,
+    backgroundColor: "#0f0f0f",
+  },
+  content: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 28,
+    backgroundColor: "#171717",
+    borderRadius: 24,
     padding: 24,
-    backgroundColor: "#FFF8F0",
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+  },
+  logo: {
+    color: "#ffffff",
+    fontSize: 34,
+    fontWeight: "900",
+    letterSpacing: 3,
+    marginBottom: 12,
   },
   title: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: "#3A2A1A",
-    marginTop: 32,
+    color: "#ffffff",
+    fontSize: 28,
+    fontWeight: "900",
+    textAlign: "center",
+    marginBottom: 8,
   },
   subtitle: {
-    marginTop: 8,
-    marginBottom: 24,
-    fontSize: 16,
-    color: "#6B4E3D",
+    color: "#cfcfcf",
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: "center",
+  },
+  form: {
+    backgroundColor: "#171717",
+    borderRadius: 22,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "800",
+    marginBottom: 8,
   },
   input: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#D8BFA8",
+    backgroundColor: "#0f0f0f",
     borderRadius: 14,
-    padding: 14,
+    borderWidth: 1,
+    borderColor: "#333333",
+    color: "#ffffff",
     fontSize: 16,
-    marginBottom: 12,
-    color: "#3A2A1A",
+    paddingHorizontal: 14,
+    paddingVertical: 13,
   },
-  button: {
-    backgroundColor: "#8B5E3C",
+  primaryButton: {
+    backgroundColor: "#ffffff",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 6,
   },
-  buttonText: {
-    color: "#FFFFFF",
+  primaryButtonText: {
+    color: "#000000",
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "900",
   },
-  error: {
-    color: "#B00020",
+  secondaryButton: {
+    borderWidth: 1,
+    borderColor: "#ffffff",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  secondaryButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  infoBox: {
+    marginTop: 22,
+    backgroundColor: "#121212",
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+  },
+  infoTitle: {
+    color: "#ffffff",
+    fontSize: 17,
+    fontWeight: "900",
     marginBottom: 8,
+  },
+  infoText: {
+    color: "#cfcfcf",
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  backButton: {
+    marginTop: 22,
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  backButtonText: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "800",
   },
 });
