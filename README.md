@@ -1,50 +1,112 @@
-# Welcome to your Expo app 👋
+# LUTB Store - App Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo mobile da loja **LUTB**, desenvolvido em **React Native + Expo**, migrado a partir de um projeto antigo em **Next.js**.
 
-## Get started
+O projeto usa **Expo Router** para navegação, **Zustand** para gerenciamento de estado global e possui estrutura preparada para integração futura com **Supabase**.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Integrantes
 
-2. Start the app
+| Nome | RA | Função principal |
+|---|---:|---|
+| Davi Magalhães Mendes | 852600 | Base Expo, rotas, Zustand, autenticação temporária e estrutura geral |
+| Arthur Lima Pinto Bacalhau | 852137 | Supabase, banco de dados, back-end, relacionamento e policies/RLS |
+| Luiz Henrique Camello | 852839 | Visual, catálogo, telas da loja e estilização geral |
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Tecnologias utilizadas
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- React Native
+- Expo
+- Expo Router
+- JavaScript
+- Zustand
+- Supabase, planejado para a versão final
+- GitHub Codespaces
+- Git e GitHub
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## Funcionalidades implementadas
 
-When you're ready, run:
+- Home inicial da loja
+- Tela Sobre com resumo técnico
+- Tela individual para cada integrante
+- Catálogo de produtos
+- Tela de detalhes do produto
+- Tela de categorias
+- Exibição de relacionamento Produto/Categoria
+- CRUD temporário de produtos
+- Restauração dos produtos do mock
+- Restauração das categorias do mock
+- Login temporário
+- Cadastro temporário
+- Perfil do usuário
+- Logout temporário
+- Mock temporário do Supabase
+- Estado global com Zustand
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Requisitos atendidos
 
-## Learn more
+| Requisito | Status |
+|---|---|
+| Expo Router | Implementado |
+| Zustand | Implementado |
+| Home | Implementado |
+| Sobre | Implementado |
+| Uma tela por integrante | Implementado |
+| Interações com botões, formulários e filtros | Implementado |
+| Conexão com back-end | Preparada via mock temporário |
+| CRUD completo de uma entidade | Implementado em Produto |
+| Exibição de mais uma entidade | Implementado em Categoria |
+| Relacionamento entre entidades | Produto relacionado com Categoria |
+| Login, logout e sign up | Implementado temporariamente com Zustand |
+| Estilização profissional | Implementado |
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Entidades do projeto
 
-## Join the community
+### Produto
 
-Join our community of developers creating universal apps.
+Entidade principal do app.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Campos principais:
+
+- `id`
+- `nome`
+- `preco`
+- `descricao`
+- `imagem`
+- `categoria`
+- `categoriaId`
+
+A entidade Produto possui CRUD temporário na tela administrativa.
+
+---
+
+### Categoria
+
+Segunda entidade do app.
+
+Campos principais:
+
+- `id`
+- `nome`
+- `descricao`
+- `destaque`
+
+A categoria é usada para agrupar os produtos.
+
+---
+
+## Relacionamento Produto/Categoria
+
+O relacionamento é feito pelo campo:
+
+```js
+produto.categoriaId
