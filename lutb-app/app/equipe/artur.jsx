@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 
-export default function Integrante2() {
+export default function Artur() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
@@ -21,37 +21,37 @@ export default function Integrante2() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Responsabilidades</Text>
+        <Text style={styles.sectionTitle}>Responsabilidades no projeto</Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Configuração do Supabase</Text>
+          <Text style={styles.cardTitle}>Supabase</Text>
           <Text style={styles.cardText}>
-            Responsável pela criação e configuração do projeto no Supabase, que
-            será usado como back-end da aplicação LUTB.
+            Responsável por configurar o Supabase, que será usado como back-end
+            do aplicativo LUTB.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Banco de dados</Text>
+          <Text style={styles.cardTitle}>Tabelas do banco</Text>
           <Text style={styles.cardText}>
-            Criação das tabelas necessárias para armazenar produtos, categorias,
-            usuários e dados relacionados ao funcionamento da loja.
+            Criação das tabelas necessárias para armazenar os dados principais
+            do sistema, como produtos, categorias e usuários.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Relacionamento entre entidades</Text>
+          <Text style={styles.cardTitle}>Relacionamento produto-categoria</Text>
           <Text style={styles.cardText}>
             Criação do relacionamento entre produtos e categorias, permitindo
-            que o aplicativo exiba mais de uma entidade conectada.
+            que o aplicativo mostre entidades relacionadas.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Autenticação</Text>
           <Text style={styles.cardText}>
-            Configuração da autenticação no Supabase para permitir login,
-            cadastro, logout e controle de usuários.
+            Configuração do sistema de autenticação no Supabase para login,
+            cadastro e logout integrados ao back-end.
           </Text>
         </View>
 
@@ -59,15 +59,23 @@ export default function Integrante2() {
           <Text style={styles.cardTitle}>Policies e RLS</Text>
           <Text style={styles.cardText}>
             Configuração das policies e regras de Row Level Security para
-            controlar o acesso aos dados do banco.
+            proteger os dados e controlar permissões de acesso.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Credenciais e dados iniciais</Text>
+          <Text style={styles.cardTitle}>Credenciais do Supabase</Text>
           <Text style={styles.cardText}>
-            Fornecimento da SUPABASE_URL, SUPABASE_ANON_KEY e criação dos dados
-            iniciais necessários para o funcionamento do app.
+            Fornecimento da SUPABASE_URL e da SUPABASE_ANON_KEY para substituir
+            o mock temporário usado durante o desenvolvimento inicial.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Dados iniciais</Text>
+          <Text style={styles.cardText}>
+            Criação dos dados iniciais no banco para permitir testes reais de
+            catálogo, relacionamento e autenticação.
           </Text>
         </View>
       </View>
@@ -86,27 +94,28 @@ export default function Integrante2() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Resumo da participação</Text>
+        <Text style={styles.sectionTitle}>Resumo</Text>
 
         <View style={styles.summaryBox}>
           <Text style={styles.summaryText}>
             Arthur ficou responsável pela parte de back-end do projeto,
-            configurando o Supabase, criando as tabelas, relacionamentos,
-            autenticação, policies, RLS e os dados iniciais do banco.
+            configurando o Supabase, criando tabelas, relacionamento entre
+            produtos e categorias, autenticação, policies, RLS, credenciais e
+            dados iniciais.
           </Text>
         </View>
       </View>
 
       <View style={styles.buttons}>
-        <Link href="/sobre" asChild>
+        <Link href="/" asChild>
           <Pressable style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Ver Sobre o App</Text>
+            <Text style={styles.primaryButtonText}>Voltar para Home</Text>
           </Pressable>
         </Link>
 
-        <Link href="/" asChild>
+        <Link href="/sobre" asChild>
           <Pressable style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>Voltar para Home</Text>
+            <Text style={styles.secondaryButtonText}>Ver Sobre o App</Text>
           </Pressable>
         </Link>
       </View>
@@ -163,6 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "800",
     textAlign: "center",
+    lineHeight: 22,
   },
   section: {
     marginTop: 26,

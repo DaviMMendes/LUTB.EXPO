@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 
-export default function Integrante3() {
+export default function Luiz() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
@@ -21,53 +21,61 @@ export default function Integrante3() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Responsabilidades</Text>
+        <Text style={styles.sectionTitle}>Responsabilidades no projeto</Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Tela Home</Text>
+          <Text style={styles.cardTitle}>Home</Text>
           <Text style={styles.cardText}>
-            Responsável pela melhoria visual da tela inicial, deixando a
-            apresentação da loja mais profissional e adequada ao projeto mobile.
+            Melhoria visual da tela inicial, apresentando a loja LUTB de forma
+            mais organizada e profissional.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Catálogo</Text>
           <Text style={styles.cardText}>
-            Criação e ajuste da tela de catálogo, com exibição dos produtos
-            disponíveis na loja LUTB.
+            Criação e ajuste da tela de catálogo, exibindo os produtos da loja
+            com navegação para detalhes.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Detalhes do produto</Text>
           <Text style={styles.cardText}>
-            Organização da tela individual de produto, exibindo informações como
-            nome, imagem, descrição, categoria e preço.
+            Criação da tela individual de produto, mostrando nome, imagem,
+            categoria, descrição e preço.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Tela Sobre</Text>
           <Text style={styles.cardText}>
-            Criação e ajuste da tela Sobre, apresentando tecnologias utilizadas,
-            objetivo do aplicativo e informações do projeto.
+            Criação e ajuste da tela Sobre, explicando o objetivo do app,
+            tecnologias usadas e informações do projeto.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Telas da equipe</Text>
           <Text style={styles.cardText}>
-            Criação das telas individuais dos integrantes, exibindo nome, RA e
-            função de cada pessoa no desenvolvimento do app.
+            Criação das telas individuais dos integrantes, contendo nome, RA,
+            responsabilidades e tecnologias relacionadas.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Área admin visual</Text>
           <Text style={styles.cardText}>
-            Apoio na construção visual da área administrativa e melhoria geral
-            da estilização do aplicativo.
+            Apoio na construção da tela administrativa visual, incluindo
+            formulários, botões, listagem e organização dos produtos.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Estilização geral</Text>
+          <Text style={styles.cardText}>
+            Melhoria da aparência geral do aplicativo, buscando uma interface
+            mais consistente, escura, organizada e profissional.
           </Text>
         </View>
       </View>
@@ -77,36 +85,36 @@ export default function Integrante3() {
 
         <View style={styles.tags}>
           <Text style={styles.tag}>React Native</Text>
+          <Text style={styles.tag}>Expo Router</Text>
           <Text style={styles.tag}>UI Mobile</Text>
           <Text style={styles.tag}>Catálogo</Text>
           <Text style={styles.tag}>Produtos</Text>
           <Text style={styles.tag}>Estilização</Text>
-          <Text style={styles.tag}>Expo Router</Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Resumo da participação</Text>
+        <Text style={styles.sectionTitle}>Resumo</Text>
 
         <View style={styles.summaryBox}>
           <Text style={styles.summaryText}>
             Luiz ficou responsável pela parte visual do aplicativo, incluindo
-            Home, catálogo, detalhes dos produtos, tela Sobre, telas da equipe,
-            área administrativa visual e acabamento geral da interface.
+            melhoria da Home, catálogo, detalhes do produto, tela Sobre, telas da
+            equipe, área administrativa visual e estilização geral.
           </Text>
         </View>
       </View>
 
       <View style={styles.buttons}>
-        <Link href="/sobre" asChild>
+        <Link href="/" asChild>
           <Pressable style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Ver Sobre o App</Text>
+            <Text style={styles.primaryButtonText}>Voltar para Home</Text>
           </Pressable>
         </Link>
 
-        <Link href="/" asChild>
+        <Link href="/sobre" asChild>
           <Pressable style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>Voltar para Home</Text>
+            <Text style={styles.secondaryButtonText}>Ver Sobre o App</Text>
           </Pressable>
         </Link>
       </View>
@@ -163,6 +171,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "800",
     textAlign: "center",
+    lineHeight: 22,
   },
   section: {
     marginTop: 26,

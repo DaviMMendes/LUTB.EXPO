@@ -17,25 +17,41 @@ export default function Davi() {
 
         <Text style={styles.title}>Davi Magalhães Mendes</Text>
         <Text style={styles.subtitle}>RA: 852600</Text>
-        <Text style={styles.role}>Base do app, autenticação e estrutura</Text>
+        <Text style={styles.role}>Base do app, rotas, Zustand e autenticação</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Responsabilidades</Text>
+        <Text style={styles.sectionTitle}>Responsabilidades no projeto</Text>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Base do projeto Expo</Text>
           <Text style={styles.cardText}>
-            Criação da estrutura inicial do projeto mobile da LUTB usando React
-            Native com Expo.
+            Criação da estrutura inicial do aplicativo mobile da LUTB usando
+            React Native com Expo.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Expo Router</Text>
           <Text style={styles.cardText}>
-            Configuração da navegação baseada em arquivos e criação da estrutura
-            principal de rotas do aplicativo.
+            Configuração do sistema de rotas baseado em arquivos e organização
+            das principais telas do aplicativo.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Estrutura de rotas</Text>
+          <Text style={styles.cardText}>
+            Criação das rotas principais, incluindo Home, catálogo, produto,
+            Sobre, login, cadastro, perfil, admin e telas da equipe.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Zustand</Text>
+          <Text style={styles.cardText}>
+            Preparação do gerenciamento de estado global do app, requisito do
+            projeto, para controlar produtos, autenticação e dados compartilhados.
           </Text>
         </View>
 
@@ -43,23 +59,23 @@ export default function Davi() {
           <Text style={styles.cardTitle}>Autenticação</Text>
           <Text style={styles.cardText}>
             Preparação das telas de login, cadastro, perfil e logout para futura
-            integração com Supabase.
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Estrutura global</Text>
-          <Text style={styles.cardText}>
-            Organização da base do aplicativo, reaproveitamento das imagens do
-            projeto antigo e preparação para uso de Zustand e Supabase.
+            integração com a autenticação real do Supabase.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Área administrativa</Text>
           <Text style={styles.cardText}>
-            Preparação da estrutura visual e lógica inicial da área admin, que
-            futuramente será protegida por autenticação.
+            Preparação da proteção futura da área admin, que posteriormente
+            deverá depender de usuário autenticado e permissões vindas do banco.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Migração do projeto antigo</Text>
+          <Text style={styles.cardText}>
+            Reaproveitamento de imagens e dados do antigo site LUTB feito em
+            Next.js para a nova versão mobile em React Native.
           </Text>
         </View>
       </View>
@@ -79,27 +95,28 @@ export default function Davi() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Resumo da participação</Text>
+        <Text style={styles.sectionTitle}>Resumo</Text>
 
         <View style={styles.summaryBox}>
           <Text style={styles.summaryText}>
-            Davi ficou responsável pela fundação técnica do aplicativo,
-            configurando a navegação, as telas principais, a base de autenticação
-            e a preparação do projeto para receber o back-end real com Supabase.
+            Davi ficou responsável pela base técnica do aplicativo, incluindo a
+            criação do projeto Expo, configuração das rotas, preparação do
+            Zustand, autenticação, perfil, logout, área admin e migração inicial
+            dos dados e imagens do projeto antigo.
           </Text>
         </View>
       </View>
 
       <View style={styles.buttons}>
-        <Link href="/sobre" asChild>
+        <Link href="/" asChild>
           <Pressable style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Ver Sobre o App</Text>
+            <Text style={styles.primaryButtonText}>Voltar para Home</Text>
           </Pressable>
         </Link>
 
-        <Link href="/" asChild>
+        <Link href="/sobre" asChild>
           <Pressable style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>Voltar para Home</Text>
+            <Text style={styles.secondaryButtonText}>Ver Sobre o App</Text>
           </Pressable>
         </Link>
       </View>
@@ -156,6 +173,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "800",
     textAlign: "center",
+    lineHeight: 22,
   },
   section: {
     marginTop: 26,
