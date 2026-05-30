@@ -12,33 +12,42 @@ import {
   View,
 } from "react-native";
 
+import { useAuthStore } from "../src/store/authStore";
+
 export default function Signup() {
+  const cadastrar = useAuthStore((state) => state.cadastrar);
+  const autenticado = useAuthStore((state) => state.autenticado);
+  const usuario = useAuthStore((state) => state.usuario);
+  const ultimaAcao = useAuthStore((state) => state.ultimaAcao);
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
-  function handleCadastro() {
-    if (
-      !nome.trim() ||
-      !email.trim() ||
-      !senha.trim() ||
-      !confirmarSenha.trim()
-    ) {
-      Alert.alert("Atenção", "Preencha todos os campos.");
+  async function handleCadastro() {
+    if (carregando) {
       return;
     }
 
-    if (senha !== confirmarSenha) {
-      Alert.alert("Atenção", "As senhas não são iguais.");
+    setCarregando(true);
+
+    const resultado = await cadastrar({
+      nome,
+      email,
+      senha,
+      confirmarSenha,
+    });
+
+    setCarregando(false);
+
+    if (!resultado.sucesso) {
+      Alert.alert("Atenção", resultado.mensagem);
       return;
     }
 
-    Alert.alert(
-      "Cadastro temporário",
-      "O cadastro real será integrado ao Supabase depois."
-    );
-
+    Alert.alert("Cadastro temporário", resultado.mensagem);
     router.push("/perfil");
   }
 
@@ -52,8 +61,8 @@ export default function Signup() {
           <Text style={styles.logo}>LUTB</Text>
           <Text style={styles.title}>Criar conta</Text>
           <Text style={styles.subtitle}>
-            Tela de cadastro preparada para receber autenticação real com
-            Supabase.
+            Cadastro temporário usando Zustand. Depois será substituído pelo
+            auth.signUp do Supabase.
           </Text>
         </View>
 
@@ -107,7 +116,9 @@ export default function Signup() {
           </View>
 
           <Pressable style={styles.primaryButton} onPress={handleCadastro}>
-            <Text style={styles.primaryButtonText}>Cadastrar</Text>
+            <Text style={styles.primaryButtonText}>
+              {carregando ? "Cadastrando..." : "Cadastrar"}
+            </Text>
           </Pressable>
 
           <Link href="/login" asChild>
@@ -117,11 +128,22 @@ export default function Signup() {
           </Link>
         </View>
 
+        <View style={styles.statusBox}>
+          <Text style={styles.statusTitle}>Estado da autenticação</Text>
+          <Text style={styles.statusText}>
+            Status: {autenticado ? "Usuário logado" : "Usuário não logado"}
+          </Text>
+          <Text style={styles.statusText}>
+            Usuário: {usuario?.email || "nenhum"}
+          </Text>
+          <Text style={styles.statusText}>Última ação: {ultimaAcao}</Text>
+        </View>
+
         <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Observação</Text>
+          <Text style={styles.infoTitle}>Integração futura</Text>
           <Text style={styles.infoText}>
-            Por enquanto, esta tela apenas simula o cadastro. Quando o banco
-            estiver pronto, ela poderá usar auth.signUp do Supabase.
+            Quando o Supabase estiver pronto, esta tela deverá chamar
+            supabase.auth.signUp e gravar o usuário real no back-end.
           </Text>
         </View>
 
@@ -227,6 +249,24 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "800",
+  },
+  statusBox: {
+    marginTop: 22,
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 18,
+  },
+  statusTitle: {
+    color: "#000000",
+    fontSize: 17,
+    fontWeight: "900",
+    marginBottom: 8,
+  },
+  statusText: {
+    color: "#202020",
+    fontSize: 14,
+    lineHeight: 21,
+    fontWeight: "700",
   },
   infoBox: {
     marginTop: 22,
