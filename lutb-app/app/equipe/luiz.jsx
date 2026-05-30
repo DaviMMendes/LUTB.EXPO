@@ -7,59 +7,67 @@ import {
   View,
 } from "react-native";
 
-export default function Davi() {
+export default function Integrante3() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>D</Text>
+          <Text style={styles.avatarText}>L</Text>
         </View>
 
-        <Text style={styles.title}>Davi Magalhães Mendes</Text>
-        <Text style={styles.subtitle}>RA: 852600</Text>
-        <Text style={styles.role}>Base do app, autenticação e estrutura</Text>
+        <Text style={styles.title}>Luiz Henrique Camello</Text>
+        <Text style={styles.subtitle}>RA: 852839</Text>
+        <Text style={styles.role}>Visual, catálogo e telas da loja</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Responsabilidades</Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Base do projeto Expo</Text>
+          <Text style={styles.cardTitle}>Tela Home</Text>
           <Text style={styles.cardText}>
-            Criação da estrutura inicial do projeto mobile da LUTB usando React
-            Native com Expo.
+            Responsável pela melhoria visual da tela inicial, deixando a
+            apresentação da loja mais profissional e adequada ao projeto mobile.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Expo Router</Text>
+          <Text style={styles.cardTitle}>Catálogo</Text>
           <Text style={styles.cardText}>
-            Configuração da navegação baseada em arquivos e criação da estrutura
-            principal de rotas do aplicativo.
+            Criação e ajuste da tela de catálogo, com exibição dos produtos
+            disponíveis na loja LUTB.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Autenticação</Text>
+          <Text style={styles.cardTitle}>Detalhes do produto</Text>
           <Text style={styles.cardText}>
-            Preparação das telas de login, cadastro, perfil e logout para futura
-            integração com Supabase.
+            Organização da tela individual de produto, exibindo informações como
+            nome, imagem, descrição, categoria e preço.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Estrutura global</Text>
+          <Text style={styles.cardTitle}>Tela Sobre</Text>
           <Text style={styles.cardText}>
-            Organização da base do aplicativo, reaproveitamento das imagens do
-            projeto antigo e preparação para uso de Zustand e Supabase.
+            Criação e ajuste da tela Sobre, apresentando tecnologias utilizadas,
+            objetivo do aplicativo e informações do projeto.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Área administrativa</Text>
+          <Text style={styles.cardTitle}>Telas da equipe</Text>
           <Text style={styles.cardText}>
-            Preparação da estrutura visual e lógica inicial da área admin, que
-            futuramente será protegida por autenticação.
+            Criação das telas individuais dos integrantes, exibindo nome, RA e
+            função de cada pessoa no desenvolvimento do app.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Área admin visual</Text>
+          <Text style={styles.cardText}>
+            Apoio na construção visual da área administrativa e melhoria geral
+            da estilização do aplicativo.
           </Text>
         </View>
       </View>
@@ -69,12 +77,11 @@ export default function Davi() {
 
         <View style={styles.tags}>
           <Text style={styles.tag}>React Native</Text>
-          <Text style={styles.tag}>Expo</Text>
+          <Text style={styles.tag}>UI Mobile</Text>
+          <Text style={styles.tag}>Catálogo</Text>
+          <Text style={styles.tag}>Produtos</Text>
+          <Text style={styles.tag}>Estilização</Text>
           <Text style={styles.tag}>Expo Router</Text>
-          <Text style={styles.tag}>Zustand</Text>
-          <Text style={styles.tag}>Supabase Auth</Text>
-          <Text style={styles.tag}>GitHub</Text>
-          <Text style={styles.tag}>Codespaces</Text>
         </View>
       </View>
 
@@ -83,9 +90,9 @@ export default function Davi() {
 
         <View style={styles.summaryBox}>
           <Text style={styles.summaryText}>
-            Davi ficou responsável pela fundação técnica do aplicativo,
-            configurando a navegação, as telas principais, a base de autenticação
-            e a preparação do projeto para receber o back-end real com Supabase.
+            Luiz ficou responsável pela parte visual do aplicativo, incluindo
+            Home, catálogo, detalhes dos produtos, tela Sobre, telas da equipe,
+            área administrativa visual e acabamento geral da interface.
           </Text>
         </View>
       </View>

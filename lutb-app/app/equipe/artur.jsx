@@ -7,59 +7,67 @@ import {
   View,
 } from "react-native";
 
-export default function Davi() {
+export default function Integrante2() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>D</Text>
+          <Text style={styles.avatarText}>A</Text>
         </View>
 
-        <Text style={styles.title}>Davi Magalhães Mendes</Text>
-        <Text style={styles.subtitle}>RA: 852600</Text>
-        <Text style={styles.role}>Base do app, autenticação e estrutura</Text>
+        <Text style={styles.title}>Arthur Lima Pinto Bacalhau</Text>
+        <Text style={styles.subtitle}>RA: 852137</Text>
+        <Text style={styles.role}>Supabase, banco de dados e back-end</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Responsabilidades</Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Base do projeto Expo</Text>
+          <Text style={styles.cardTitle}>Configuração do Supabase</Text>
           <Text style={styles.cardText}>
-            Criação da estrutura inicial do projeto mobile da LUTB usando React
-            Native com Expo.
+            Responsável pela criação e configuração do projeto no Supabase, que
+            será usado como back-end da aplicação LUTB.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Expo Router</Text>
+          <Text style={styles.cardTitle}>Banco de dados</Text>
           <Text style={styles.cardText}>
-            Configuração da navegação baseada em arquivos e criação da estrutura
-            principal de rotas do aplicativo.
+            Criação das tabelas necessárias para armazenar produtos, categorias,
+            usuários e dados relacionados ao funcionamento da loja.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Relacionamento entre entidades</Text>
+          <Text style={styles.cardText}>
+            Criação do relacionamento entre produtos e categorias, permitindo
+            que o aplicativo exiba mais de uma entidade conectada.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Autenticação</Text>
           <Text style={styles.cardText}>
-            Preparação das telas de login, cadastro, perfil e logout para futura
-            integração com Supabase.
+            Configuração da autenticação no Supabase para permitir login,
+            cadastro, logout e controle de usuários.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Estrutura global</Text>
+          <Text style={styles.cardTitle}>Policies e RLS</Text>
           <Text style={styles.cardText}>
-            Organização da base do aplicativo, reaproveitamento das imagens do
-            projeto antigo e preparação para uso de Zustand e Supabase.
+            Configuração das policies e regras de Row Level Security para
+            controlar o acesso aos dados do banco.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Área administrativa</Text>
+          <Text style={styles.cardTitle}>Credenciais e dados iniciais</Text>
           <Text style={styles.cardText}>
-            Preparação da estrutura visual e lógica inicial da área admin, que
-            futuramente será protegida por autenticação.
+            Fornecimento da SUPABASE_URL, SUPABASE_ANON_KEY e criação dos dados
+            iniciais necessários para o funcionamento do app.
           </Text>
         </View>
       </View>
@@ -68,13 +76,12 @@ export default function Davi() {
         <Text style={styles.sectionTitle}>Tecnologias relacionadas</Text>
 
         <View style={styles.tags}>
-          <Text style={styles.tag}>React Native</Text>
-          <Text style={styles.tag}>Expo</Text>
-          <Text style={styles.tag}>Expo Router</Text>
-          <Text style={styles.tag}>Zustand</Text>
-          <Text style={styles.tag}>Supabase Auth</Text>
-          <Text style={styles.tag}>GitHub</Text>
-          <Text style={styles.tag}>Codespaces</Text>
+          <Text style={styles.tag}>Supabase</Text>
+          <Text style={styles.tag}>PostgreSQL</Text>
+          <Text style={styles.tag}>SQL</Text>
+          <Text style={styles.tag}>Auth</Text>
+          <Text style={styles.tag}>RLS</Text>
+          <Text style={styles.tag}>Back-end</Text>
         </View>
       </View>
 
@@ -83,9 +90,9 @@ export default function Davi() {
 
         <View style={styles.summaryBox}>
           <Text style={styles.summaryText}>
-            Davi ficou responsável pela fundação técnica do aplicativo,
-            configurando a navegação, as telas principais, a base de autenticação
-            e a preparação do projeto para receber o back-end real com Supabase.
+            Arthur ficou responsável pela parte de back-end do projeto,
+            configurando o Supabase, criando as tabelas, relacionamentos,
+            autenticação, policies, RLS e os dados iniciais do banco.
           </Text>
         </View>
       </View>
