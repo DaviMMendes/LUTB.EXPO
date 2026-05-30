@@ -9,6 +9,7 @@ import {
 } from "react-native";
 
 import { useProdutosStore } from "../../src/store/produtosStore";
+import { useCategoriasStore } from "../../src/store/categoriasStore";
 
 function formatarPreco(preco) {
   if (!preco) {
@@ -38,6 +39,9 @@ export default function ProdutoDetalhes() {
   const { id } = useLocalSearchParams();
 
   const produto = useProdutosStore((state) => state.buscarProdutoPorId(id));
+  const buscarCategoriaPorId = useCategoriasStore(
+    (state) => state.buscarCategoriaPorId
+  );
 
   if (!produto) {
     return (
@@ -59,6 +63,8 @@ export default function ProdutoDetalhes() {
   }
 
   const imagemProduto = obterImagemProduto(produto.imagem);
+  const categoria = buscarCategoriaPorId(produto.categoriaId);
+  const nomeCategoria = categoria?.nome || produto.categoria || "Sem categoria";
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -75,9 +81,7 @@ export default function ProdutoDetalhes() {
       </View>
 
       <View style={styles.infoBox}>
-        <Text style={styles.category}>
-          {produto.categoria || "Sem categoria"}
-        </Text>
+        <Text style={styles.category}>{nomeCategoria}</Text>
 
         <Text style={styles.title}>{produto.nome}</Text>
 
@@ -102,9 +106,22 @@ export default function ProdutoDetalhes() {
         </View>
 
         <View style={styles.detailCard}>
-          <Text style={styles.detailLabel}>Relacionamento</Text>
+          <Text style={styles.detailLabel}>Categoria vinculada</Text>
+          <Text style={styles.detailValue}>{nomeCategoria}</Text>
+        </View>
+
+        <View style={styles.detailCard}>
+          <Text style={styles.detailLabel}>categoriaId</Text>
           <Text style={styles.detailValue}>
-            Produto pertence à categoria: {produto.categoria || "Sem categoria"}
+            {produto.categoriaId || "não informado"}
+          </Text>
+        </View>
+
+        <View style={styles.relationshipCard}>
+          <Text style={styles.relationshipTitle}>Relacionamento</Text>
+          <Text style={styles.relationshipText}>
+            Este Produto aponta para a entidade Categoria usando categoriaId. A
+            categoria encontrada na store é: {nomeCategoria}.
           </Text>
         </View>
 
@@ -119,8 +136,8 @@ export default function ProdutoDetalhes() {
       <View style={styles.warningBox}>
         <Text style={styles.warningTitle}>Modo temporário</Text>
         <Text style={styles.warningText}>
-          Esta tela lê o produto pelo Zustand. Quando o Supabase estiver pronto,
-          os dados deverão vir do banco real.
+          Esta tela lê o produto e a categoria pelo Zustand. Quando o Supabase
+          estiver pronto, os dados deverão vir do banco real.
         </Text>
       </View>
 
@@ -128,6 +145,12 @@ export default function ProdutoDetalhes() {
         <Link href="/catalogo" asChild>
           <Pressable style={styles.primaryButton}>
             <Text style={styles.primaryButtonText}>Voltar ao catálogo</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/categorias" asChild>
+          <Pressable style={styles.secondaryButton}>
+            <Text style={styles.secondaryButtonText}>Ver Categorias</Text>
           </Pressable>
         </Link>
 
@@ -237,6 +260,24 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     fontWeight: "700",
+  },
+  relationshipCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 12,
+  },
+  relationshipTitle: {
+    color: "#000000",
+    fontSize: 17,
+    fontWeight: "900",
+    marginBottom: 8,
+  },
+  relationshipText: {
+    color: "#202020",
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: "600",
   },
   warningBox: {
     marginTop: 20,

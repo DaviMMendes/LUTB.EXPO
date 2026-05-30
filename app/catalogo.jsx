@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { useProdutosStore } from "../src/store/produtosStore";
+import { useCategoriasStore } from "../src/store/categoriasStore";
 
 function formatarPreco(preco) {
   if (!preco) {
@@ -38,21 +39,29 @@ function obterImagemProduto(imagem) {
 
 export default function Catalogo() {
   const produtos = useProdutosStore((state) => state.produtos);
+  const categorias = useCategoriasStore((state) => state.categorias);
+
   const [busca, setBusca] = useState("");
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("Todas");
 
-  const categorias = useMemo(() => {
-    const categoriasUnicas = produtos
-      .map((produto) => produto.categoria || "Sem categoria")
-      .filter(Boolean);
+  const categoriasPorId = useMemo(() => {
+    const mapa = {};
 
-    return ["Todas", ...new Set(categoriasUnicas)];
-  }, [produtos]);
+    categorias.forEach((categoria) => {
+      mapa[categoria.id] = categoria;
+    });
+
+    return mapa;
+  }, [categorias]);
+
+  const opcoesCategorias = useMemo(() => {
+    return ["Todas", ...categorias.map((categoria) => categoria.id)];
+  }, [categorias]);
 
   const produtosFiltrados = useMemo(() => {
     return produtos.filter((produto) => {
       const nomeProduto = produto.nome || "";
-      const categoriaProduto = produto.categoria || "Sem categoria";
+      const categoriaIdProduto = produto.categoriaId || "sem-categoria";
 
       const correspondeBusca = nomeProduto
         .toLowerCase()
@@ -60,11 +69,15 @@ export default function Catalogo() {
 
       const correspondeCategoria =
         categoriaSelecionada === "Todas" ||
-        categoriaProduto === categoriaSelecionada;
+        categoriaIdProduto === categoriaSelecionada;
 
       return correspondeBusca && correspondeCategoria;
     });
   }, [produtos, busca, categoriaSelecionada]);
+
+  function obterNomeCategoria(categoriaId, categoriaTexto) {
+    return categoriasPorId[categoriaId]?.nome || categoriaTexto || "Sem categoria";
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -96,17 +109,21 @@ export default function Catalogo() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryList}
         >
-          {categorias.map((categoria) => {
-            const ativa = categoriaSelecionada === categoria;
+          {opcoesCategorias.map((categoriaId) => {
+            const ativa = categoriaSelecionada === categoriaId;
+            const nomeCategoria =
+              categoriaId === "Todas"
+                ? "Todas"
+                : categoriasPorId[categoriaId]?.nome || categoriaId;
 
             return (
               <Pressable
-                key={categoria}
+                key={categoriaId}
                 style={[
                   styles.categoryButton,
                   ativa && styles.categoryButtonActive,
                 ]}
-                onPress={() => setCategoriaSelecionada(categoria)}
+                onPress={() => setCategoriaSelecionada(categoriaId)}
               >
                 <Text
                   style={[
@@ -114,12 +131,20 @@ export default function Catalogo() {
                     ativa && styles.categoryButtonTextActive,
                   ]}
                 >
-                  {categoria}
+                  {nomeCategoria}
                 </Text>
               </Pressable>
             );
           })}
         </ScrollView>
+      </View>
+
+      <View style={styles.relationshipBox}>
+        <Text style={styles.relationshipTitle}>Relacionamento exibido</Text>
+        <Text style={styles.relationshipText}>
+          Cada produto usa o campo categoriaId para se vincular a uma categoria
+          cadastrada no Zustand.
+        </Text>
       </View>
 
       <View style={styles.section}>
@@ -140,13 +165,13 @@ export default function Catalogo() {
         ) : (
           produtosFiltrados.map((produto) => {
             const imagemProduto = obterImagemProduto(produto.imagem);
+            const nomeCategoria = obterNomeCategoria(
+              produto.categoriaId,
+              produto.categoria
+            );
 
             return (
-              <Link
-                key={produto.id}
-                href={`/produto/${produto.id}`}
-                asChild
-              >
+              <Link key={produto.id} href={`/produto/${produto.id}`} asChild>
                 <Pressable style={styles.productCard}>
                   <View style={styles.imageBox}>
                     {imagemProduto ? (
@@ -164,7 +189,11 @@ export default function Catalogo() {
                     <Text style={styles.productName}>{produto.nome}</Text>
 
                     <Text style={styles.productCategory}>
-                      {produto.categoria || "Sem categoria"}
+                      Categoria: {nomeCategoria}
+                    </Text>
+
+                    <Text style={styles.productCategoryId}>
+                      categoriaId: {produto.categoriaId || "não informado"}
                     </Text>
 
                     <Text style={styles.productDescription} numberOfLines={2}>
@@ -183,6 +212,12 @@ export default function Catalogo() {
       </View>
 
       <View style={styles.buttons}>
+        <Link href="/categorias" asChild>
+          <Pressable style={styles.secondaryButton}>
+            <Text style={styles.secondaryButtonText}>Ver Categorias</Text>
+          </Pressable>
+        </Link>
+
         <Link href="/admin/produtos" asChild>
           <Pressable style={styles.primaryButton}>
             <Text style={styles.primaryButtonText}>Abrir Admin</Text>
@@ -283,6 +318,24 @@ const styles = StyleSheet.create({
   categoryButtonTextActive: {
     color: "#000000",
   },
+  relationshipBox: {
+    marginTop: 22,
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 16,
+  },
+  relationshipTitle: {
+    color: "#000000",
+    fontSize: 17,
+    fontWeight: "900",
+    marginBottom: 6,
+  },
+  relationshipText: {
+    color: "#202020",
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "600",
+  },
   listHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -351,9 +404,15 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   productCategory: {
-    color: "#a8a8a8",
+    color: "#ffffff",
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "900",
+    marginBottom: 4,
+  },
+  productCategoryId: {
+    color: "#a8a8a8",
+    fontSize: 12,
+    fontWeight: "700",
     marginBottom: 8,
   },
   productDescription: {
@@ -375,6 +434,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
+    marginTop: 12,
   },
   primaryButtonText: {
     color: "#000000",
