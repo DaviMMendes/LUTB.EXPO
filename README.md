@@ -11,7 +11,7 @@ O projeto usa **Expo Router** para navegação, **Zustand** para gerenciamento d
 | Nome | RA | Função principal |
 |---|---:|---|
 | Davi Magalhães Mendes | 852600 | Base Expo, rotas, Zustand, autenticação temporária e estrutura geral |
-| Arthur Lima Pinto Bacalhau | 852137 | Supabase, banco de dados, back-end, relacionamento e policies/RLS |
+| Artur Lima Pinto Bacalhau | 852137 | Supabase, banco de dados, back-end, relacionamento e policies/RLS |
 | Luiz Henrique Camello | 852839 | Visual, catálogo, telas da loja e estilização geral |
 
 ---
