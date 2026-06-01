@@ -1,19 +1,21 @@
-import { create } from "zustand";
-import { mockProdutos } from "../data/mockProdutos";
+import { create } from 'zustand';
+import { mockProdutos } from '../data/mockProdutos';
+import { supabase } from '../lib/supabase';
 
-function normalizarProduto(produto) {
+const imagensLocais = {};
+mockProdutos.forEach((p) => {
+  imagensLocais[p.id] = p.imagem;
+});
+
+function normalizarProduto(p) {
   return {
-    id: produto.id,
-    nome: produto.nome || produto.name || "",
-    preco: produto.preco || produto.price || "0",
-    descricao: produto.descricao || produto.description || "",
-    imagem: produto.imagem || produto.image || produto.foto || null,
-    categoriaId:
-      produto.categoriaId ||
-      produto.categoria_id ||
-      produto.categoria ||
-      produto.tipo ||
-      "camisetas",
+    id: String(p.id),
+    nome: p.nome || '',
+    preco: p.preco || 0,
+    descricao: p.descricao || '',
+    imagem: imagensLocais[String(p.id)] || p.imagem || null,
+    categoriaId: p.categoria_id || p.categoriaId || '',
+    categoria: p.categorias?.nome || p.categoria || 'Sem categoria',
   };
 }
 
@@ -22,50 +24,86 @@ function gerarId() {
 }
 
 export const useProdutosStore = create((set, get) => ({
-  produtos: mockProdutos.map(normalizarProduto),
+  produtos: [],
+  carregando: false,
+  erro: null,
   resetVersao: 0,
 
-  adicionarProduto: (produto) => {
-    const novoProduto = normalizarProduto({
-      ...produto,
-      id: produto.id || gerarId(),
-    });
+  carregarProdutos: async () => {
+    set({ carregando: true, erro: null });
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('*, categorias(id, nome)')
+      .order('nome');
+    if (error) {
+      set({ erro: error.message, carregando: false, produtos: mockProdutos.map(normalizarProduto) });
+      return;
+    }
+    set({ produtos: data.map(normalizarProduto), carregando: false });
+  },
 
+  buscarProdutoPorId: (id) => {
+    return get().produtos.find((p) => String(p.id) === String(id)) || null;
+  },
+
+  adicionarProduto: async (dados) => {
+    const novoId = gerarId();
+    const { data, error } = await supabase
+      .from('produtos')
+      .insert({
+        id: novoId,
+        nome: dados.nome,
+        preco: dados.preco,
+        descricao: dados.descricao,
+        imagem: null,
+        categoria_id: dados.categoriaId,
+      })
+      .select('*, categorias(id, nome)')
+      .single();
+    if (error) return;
+    set((state) => ({ produtos: [...state.produtos, normalizarProduto(data)] }));
+  },
+
+  editarProduto: async (id, dados) => {
+    const { data, error } = await supabase
+      .from('produtos')
+      .update({
+        nome: dados.nome,
+        preco: dados.preco,
+        descricao: dados.descricao,
+        categoria_id: dados.categoriaId,
+      })
+      .eq('id', id)
+      .select('*, categorias(id, nome)')
+      .single();
+    if (error) return;
     set((state) => ({
-      produtos: [...state.produtos, novoProduto],
+      produtos: state.produtos.map((p) => (p.id === String(id) ? normalizarProduto(data) : p)),
     }));
   },
 
-  editarProduto: (id, dadosAtualizados) => {
+  removerProduto: async (id) => {
+    const { error } = await supabase.from('produtos').delete().eq('id', id);
+    if (error) return;
     set((state) => ({
-      produtos: state.produtos.map((produto) =>
-        String(produto.id) === String(id)
-          ? normalizarProduto({
-              ...produto,
-              ...dadosAtualizados,
-              id: produto.id,
-            })
-          : produto
-      ),
+      produtos: state.produtos.filter((p) => p.id !== String(id)),
     }));
   },
 
-  removerProduto: (id) => {
-    set((state) => ({
-      produtos: state.produtos.filter(
-        (produto) => String(produto.id) !== String(id)
-      ),
+  restaurarProdutosDoMock: async () => {
+    await supabase.from('produtos').delete().neq('id', '');
+    const inserts = mockProdutos.map((p) => ({
+      id: p.id,
+      nome: p.nome,
+      preco: p.preco,
+      descricao: p.descricao,
+      imagem: null,
+      categoria_id: p.categoriaId,
     }));
-  },
-
-  restaurarProdutosDoMock: () => {
+    await supabase.from('produtos').insert(inserts);
     set((state) => ({
       produtos: mockProdutos.map(normalizarProduto),
       resetVersao: state.resetVersao + 1,
     }));
-  },
-
-  buscarProdutoPorId: (id) => {
-    return get().produtos.find((produto) => String(produto.id) === String(id));
   },
 }));

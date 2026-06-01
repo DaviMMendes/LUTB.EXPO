@@ -1,82 +1,43 @@
-import { create } from "zustand";
-import { mockCategorias } from "../data/mockCategorias";
+import { create } from 'zustand';
+import { mockCategorias } from '../data/mockCategorias';
+import { supabase } from '../lib/supabase';
 
-function gerarIdPorNome(nome) {
-  return String(nome || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
-}
-
-function normalizarCategoria(categoria) {
+function normalizarCategoria(c) {
   return {
-    id: categoria.id || gerarIdPorNome(categoria.nome),
-    nome: categoria.nome || "",
-    descricao: categoria.descricao || "",
-    destaque: Boolean(categoria.destaque),
+    id: c.id || '',
+    nome: c.nome || '',
+    descricao: c.descricao || '',
+    destaque: Boolean(c.destaque),
   };
 }
 
 export const useCategoriasStore = create((set, get) => ({
-  categorias: mockCategorias.map(normalizarCategoria),
+  categorias: [],
+  carregando: false,
+  erro: null,
   resetVersaoCategorias: 0,
 
-  adicionarCategoria: (categoria) => {
-    const novaCategoria = normalizarCategoria(categoria);
-
-    if (!novaCategoria.id || !novaCategoria.nome) {
-      return false;
+  carregarCategorias: async () => {
+    set({ carregando: true, erro: null });
+    const { data, error } = await supabase.from('categorias').select('*').order('nome');
+    if (error) {
+      set({ erro: error.message, carregando: false, categorias: mockCategorias.map(normalizarCategoria) });
+      return;
     }
-
-    const jaExiste = get().categorias.some(
-      (item) => String(item.id) === String(novaCategoria.id)
-    );
-
-    if (jaExiste) {
-      return false;
-    }
-
-    set((state) => ({
-      categorias: [...state.categorias, novaCategoria],
-    }));
-
-    return true;
+    set({ categorias: data.map(normalizarCategoria), carregando: false });
   },
 
-  editarCategoria: (id, dadosAtualizados) => {
-    set((state) => ({
-      categorias: state.categorias.map((categoria) =>
-        String(categoria.id) === String(id)
-          ? normalizarCategoria({
-              ...categoria,
-              ...dadosAtualizados,
-              id: categoria.id,
-            })
-          : categoria
-      ),
-    }));
+  buscarCategoriaPorId: (id) => {
+    return get().categorias.find((c) => String(c.id) === String(id)) || null;
   },
 
-  removerCategoria: (id) => {
-    set((state) => ({
-      categorias: state.categorias.filter(
-        (categoria) => String(categoria.id) !== String(id)
-      ),
-    }));
-  },
-
-  restaurarCategoriasDoMock: () => {
+  restaurarCategoriasDoMock: async () => {
+    await supabase.from('categorias').delete().neq('id', '');
+    const inserts = mockCategorias.map(normalizarCategoria);
+    await supabase.from('categorias').insert(inserts);
     set((state) => ({
       categorias: mockCategorias.map(normalizarCategoria),
       resetVersaoCategorias: state.resetVersaoCategorias + 1,
     }));
-  },
-
-  buscarCategoriaPorId: (id) => {
-    return get().categorias.find(
-      (categoria) => String(categoria.id) === String(id)
-    );
   },
 }));

@@ -10,8 +10,8 @@ import {
   View,
 } from "react-native";
 
-import { useProdutosStore } from "../src/store/produtosStore";
 import { useCategoriasStore } from "../src/store/categoriasStore";
+import { useProdutosStore } from "../src/store/produtosStore";
 
 function formatarPreco(preco) {
   if (!preco) {

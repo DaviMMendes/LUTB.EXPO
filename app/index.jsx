@@ -133,7 +133,7 @@ export default function Home() {
 
               <View style={styles.teamInfo}>
                 <Text style={styles.teamButtonName}>
-                  Arthur Lima Pinto Bacalhau
+                  Artur Lima Pinto Bacalhau
                 </Text>
                 <Text style={styles.teamButtonRa}>RA: 852137</Text>
                 <Text style={styles.teamButtonRole}>

@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useMemo } from "react";
 import {
   Pressable,
@@ -6,7 +7,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { router } from "expo-router";
 import { useCategoriasStore } from "../src/store/categoriasStore";
 import { useProdutosStore } from "../src/store/produtosStore";
 

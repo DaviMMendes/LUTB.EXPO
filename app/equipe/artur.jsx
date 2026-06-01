@@ -15,7 +15,7 @@ export default function Artur() {
           <Text style={styles.avatarText}>A</Text>
         </View>
 
-        <Text style={styles.title}>Arthur Lima Pinto Bacalhau</Text>
+        <Text style={styles.title}>Artur Lima Pinto Bacalhau</Text>
         <Text style={styles.subtitle}>RA: 852137</Text>
         <Text style={styles.role}>Supabase, banco de dados e back-end</Text>
       </View>
