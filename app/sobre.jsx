@@ -11,36 +11,35 @@ export default function Sobre() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
+        <View style={styles.logoBox}>
+          <Text style={styles.logoText}>LUTB</Text>
+        </View>
         <Text style={styles.title}>Sobre o Aplicativo</Text>
-
         <Text style={styles.subtitle}>
-          O aplicativo LUTB é uma versão mobile de um projeto de e-commerce,
-          desenvolvido com React Native, Expo Router, Zustand e estrutura
-          preparada para integração com Supabase.
+          O aplicativo LUTB é uma loja mobile de colares artesanais, desenvolvido
+          com React Native, Expo Router, Zustand e Supabase.
         </Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Objetivo do projeto</Text>
-
+        <Text style={styles.sectionTitle}>Nossa missão</Text>
         <View style={styles.card}>
           <Text style={styles.cardText}>
-            O objetivo é criar um aplicativo mobile para apresentação e
-            gerenciamento de produtos da loja LUTB. O app possui catálogo,
-            detalhes de produto, área administrativa com CRUD temporário,
-            entidade Categoria, relacionamento Produto/Categoria, telas da equipe
-            e preparação para autenticação e banco de dados real.
+            Criamos o aplicativo LUTB para aproximar clientes dos nossos colares
+            artesanais feitos à mão. O app oferece catálogo completo, detalhes de
+            cada produto, organização por categorias e uma experiência de compra
+            agradável e profissional.
           </Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tecnologias utilizadas</Text>
+        <Text style={styles.sectionTitle}>Tecnologias</Text>
 
         <View style={styles.techCard}>
           <Text style={styles.techName}>React Native</Text>
           <Text style={styles.techDescription}>
-            Framework utilizado para criar interfaces mobile usando JavaScript e
+            Framework para criação de interfaces mobile com JavaScript e
             componentes nativos.
           </Text>
         </View>
@@ -48,185 +47,67 @@ export default function Sobre() {
         <View style={styles.techCard}>
           <Text style={styles.techName}>Expo</Text>
           <Text style={styles.techDescription}>
-            Plataforma usada para desenvolvimento, testes e execução do app de
-            forma simplificada.
+            Plataforma para desenvolvimento, testes e execução do aplicativo.
           </Text>
         </View>
 
         <View style={styles.techCard}>
           <Text style={styles.techName}>Expo Router</Text>
           <Text style={styles.techDescription}>
-            Sistema de rotas baseado em arquivos. Cada arquivo dentro da pasta
-            app representa uma tela ou grupo de telas do aplicativo.
+            Sistema de rotas baseado em arquivos, onde cada tela do app
+            corresponde a um arquivo na pasta de rotas.
           </Text>
         </View>
 
         <View style={styles.techCard}>
           <Text style={styles.techName}>Zustand</Text>
           <Text style={styles.techDescription}>
-            Biblioteca usada para gerenciamento de estado global. No projeto, ela
-            controla os produtos, categorias e operações temporárias de CRUD.
-          </Text>
-        </View>
-
-        <View style={styles.techCard}>
-          <Text style={styles.techName}>JavaScript</Text>
-          <Text style={styles.techDescription}>
-            Linguagem principal usada nas telas, stores, mocks e regras de
-            funcionamento temporárias do app.
-          </Text>
-        </View>
-
-        <View style={styles.techCard}>
-          <Text style={styles.techName}>Mock de dados</Text>
-          <Text style={styles.techDescription}>
-            Estrutura temporária usada para simular produtos e categorias
-            enquanto o Supabase real ainda não está configurado.
+            Gerenciamento de estado global do app, controlando produtos,
+            categorias e autenticação.
           </Text>
         </View>
 
         <View style={styles.techCard}>
           <Text style={styles.techName}>Supabase</Text>
           <Text style={styles.techDescription}>
-            Back-end planejado para banco de dados, autenticação, cadastro de
-            usuários, login, logout e persistência real dos produtos e
-            categorias.
-          </Text>
-        </View>
-
-        <View style={styles.techCard}>
-          <Text style={styles.techName}>GitHub Codespaces</Text>
-          <Text style={styles.techDescription}>
-            Ambiente de desenvolvimento online usado para editar, testar,
-            versionar e enviar o projeto ao GitHub.
+            Back-end responsável pelo banco de dados, autenticação, cadastro de
+            usuários e persistência dos dados.
           </Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Entidades do app</Text>
+        <Text style={styles.sectionTitle}>Nossas coleções</Text>
 
         <View style={styles.entityCard}>
-          <Text style={styles.entityTitle}>Produto</Text>
+          <Text style={styles.entityTitle}>Produtos</Text>
           <Text style={styles.entityText}>
-            Entidade principal do catálogo. Cada produto possui nome, preço,
-            descrição, imagem, categoria textual e categoriaId.
+            Cada produto possui nome, preço, descrição, imagem e categoria.
+            Todos os itens são peças artesanais únicas.
           </Text>
         </View>
 
         <View style={styles.entityCard}>
-          <Text style={styles.entityTitle}>Categoria</Text>
+          <Text style={styles.entityTitle}>Categorias</Text>
           <Text style={styles.entityText}>
-            Segunda entidade do aplicativo. Ela organiza os produtos em grupos,
-            como Acessórios, Coleção Especial e Pingentes.
-          </Text>
-        </View>
-
-        <View style={styles.relationshipCard}>
-          <Text style={styles.relationshipTitle}>Relacionamento</Text>
-          <Text style={styles.relationshipText}>
-            Cada produto pertence a uma categoria por meio do campo categoriaId.
-            Uma categoria pode possuir vários produtos vinculados.
+            Os produtos são organizados em categorias como Acessórios, Coleção
+            Especial e Pingentes, facilitando a navegação.
           </Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Funcionalidades atuais</Text>
+        <Text style={styles.sectionTitle}>Funcionalidades</Text>
 
         <View style={styles.listCard}>
-          <Text style={styles.listItem}>• Home inicial da loja</Text>
-          <Text style={styles.listItem}>• Catálogo de produtos</Text>
-          <Text style={styles.listItem}>• Tela de detalhes do produto</Text>
-          <Text style={styles.listItem}>• Tela de categorias</Text>
-          <Text style={styles.listItem}>
-            • Exibição do relacionamento Produto/Categoria
-          </Text>
-          <Text style={styles.listItem}>• Tela Sobre com resumo técnico</Text>
-          <Text style={styles.listItem}>• Tela de login</Text>
-          <Text style={styles.listItem}>• Tela de cadastro</Text>
-          <Text style={styles.listItem}>• Tela de perfil</Text>
-          <Text style={styles.listItem}>• Tela administrativa de produtos</Text>
-          <Text style={styles.listItem}>
-            • CRUD temporário de produtos com Zustand
-          </Text>
-          <Text style={styles.listItem}>• Restauração de produtos do mock</Text>
-          <Text style={styles.listItem}>• Restauração de categorias do mock</Text>
-          <Text style={styles.listItem}>• Telas individuais da equipe</Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Estrutura de rotas</Text>
-
-        <View style={styles.codeCard}>
-          <Text style={styles.codeText}>app/index.jsx</Text>
-          <Text style={styles.codeText}>app/catalogo.jsx</Text>
-          <Text style={styles.codeText}>app/categorias.jsx</Text>
-          <Text style={styles.codeText}>app/produto/[id].jsx</Text>
-          <Text style={styles.codeText}>app/sobre.jsx</Text>
-          <Text style={styles.codeText}>app/login.jsx</Text>
-          <Text style={styles.codeText}>app/signup.jsx</Text>
-          <Text style={styles.codeText}>app/perfil.jsx</Text>
-          <Text style={styles.codeText}>app/admin/produtos.jsx</Text>
-          <Text style={styles.codeText}>app/equipe/davi.jsx</Text>
-          <Text style={styles.codeText}>app/equipe/artur.jsx</Text>
-          <Text style={styles.codeText}>app/equipe/luiz.jsx</Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Arquivos de dados e estado</Text>
-
-        <View style={styles.codeCard}>
-          <Text style={styles.codeText}>src/data/mockProdutos.js</Text>
-          <Text style={styles.codeText}>src/data/mockCategorias.js</Text>
-          <Text style={styles.codeText}>src/store/produtosStore.js</Text>
-          <Text style={styles.codeText}>src/store/categoriasStore.js</Text>
-          <Text style={styles.codeText}>src/lib/supabase.js</Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Requisitos atendidos</Text>
-
-        <View style={styles.listCard}>
-          <Text style={styles.listItem}>• Expo Router configurado</Text>
-          <Text style={styles.listItem}>
-            • Gerenciamento global com Zustand
-          </Text>
-          <Text style={styles.listItem}>• Tela Home criada</Text>
-          <Text style={styles.listItem}>• Tela Sobre criada</Text>
-          <Text style={styles.listItem}>
-            • Uma tela para cada integrante da equipe
-          </Text>
-          <Text style={styles.listItem}>
-            • Interações com botões, formulários e navegação
-          </Text>
-          <Text style={styles.listItem}>• CRUD completo temporário de Produto</Text>
-          <Text style={styles.listItem}>• Segunda entidade: Categoria</Text>
-          <Text style={styles.listItem}>
-            • Relacionamento Produto/Categoria exibido no app
-          </Text>
-          <Text style={styles.listItem}>
-            • Preparação para integração com back-end
-          </Text>
-          <Text style={styles.listItem}>
-            • Estrutura preparada para autenticação
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Próximas melhorias</Text>
-
-        <View style={styles.card}>
-          <Text style={styles.cardText}>
-            As próximas etapas incluem integrar o Supabase real, carregar
-            produtos e categorias diretamente do banco, implementar autenticação
-            funcional, aplicar policies/RLS, persistir o CRUD no back-end e
-            substituir os mocks temporários por dados reais.
-          </Text>
+          <Text style={styles.listItem}>✦  Catálogo completo de produtos</Text>
+          <Text style={styles.listItem}>✦  Detalhes individuais de cada peça</Text>
+          <Text style={styles.listItem}>✦  Navegação por categorias</Text>
+          <Text style={styles.listItem}>✦  Busca por nome de produto</Text>
+          <Text style={styles.listItem}>✦  Login e cadastro de usuário</Text>
+          <Text style={styles.listItem}>✦  Perfil do cliente</Text>
+          <Text style={styles.listItem}>✦  Área administrativa</Text>
+          <Text style={styles.listItem}>✦  Gerenciamento completo de produtos</Text>
         </View>
       </View>
 
@@ -236,16 +117,9 @@ export default function Sobre() {
             <Text style={styles.secondaryButtonText}>Voltar para Home</Text>
           </Pressable>
         </Link>
-
         <Link href="/catalogo" asChild>
           <Pressable style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Abrir Catálogo</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/categorias" asChild>
-          <Pressable style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>Ver Categorias</Text>
+            <Text style={styles.primaryButtonText}>Ver catálogo</Text>
           </Pressable>
         </Link>
       </View>
@@ -256,157 +130,143 @@ export default function Sobre() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
   },
   content: {
     padding: 20,
     paddingBottom: 40,
   },
   header: {
-    backgroundColor: "#171717",
+    backgroundColor: "#2c1f14",
     borderRadius: 24,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
+    padding: 28,
+    alignItems: "center",
+  },
+  logoBox: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "#c9a96e",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  logoText: {
+    color: "#ffffff",
+    fontSize: 22,
+    fontWeight: "900",
+    letterSpacing: 2,
   },
   title: {
-    color: "#ffffff",
-    fontSize: 30,
+    color: "#f0e6d3",
+    fontSize: 28,
     fontWeight: "900",
     marginBottom: 10,
+    textAlign: "center",
   },
   subtitle: {
-    color: "#d4d4d4",
-    fontSize: 16,
-    lineHeight: 24,
+    color: "#c8b89a",
+    fontSize: 14,
+    lineHeight: 22,
+    textAlign: "center",
   },
   section: {
     marginTop: 26,
   },
   sectionTitle: {
-    color: "#ffffff",
-    fontSize: 22,
+    color: "#2c1f14",
+    fontSize: 20,
     fontWeight: "900",
     marginBottom: 14,
   },
   card: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
   },
   cardText: {
-    color: "#d4d4d4",
+    color: "#5a4535",
     fontSize: 15,
     lineHeight: 23,
   },
   techCard: {
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-    marginBottom: 12,
-  },
-  techName: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  techDescription: {
-    color: "#cfcfcf",
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  entityCard: {
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-    marginBottom: 12,
-  },
-  entityTitle: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  entityText: {
-    color: "#cfcfcf",
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  relationshipCard: {
     backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 18,
-    marginTop: 2,
+    borderWidth: 1,
+    borderColor: "#e0d8ce",
+    marginBottom: 12,
   },
-  relationshipTitle: {
-    color: "#000000",
-    fontSize: 18,
+  techName: {
+    color: "#2c1f14",
+    fontSize: 17,
     fontWeight: "900",
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  relationshipText: {
-    color: "#202020",
-    fontSize: 15,
-    lineHeight: 22,
+  techDescription: {
+    color: "#8a7560",
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  entityCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#e0d8ce",
+    marginBottom: 12,
+  },
+  entityTitle: {
+    color: "#2c1f14",
+    fontSize: 17,
+    fontWeight: "900",
+    marginBottom: 6,
+  },
+  entityText: {
+    color: "#8a7560",
+    fontSize: 14,
+    lineHeight: 21,
   },
   listCard: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
+    gap: 8,
   },
   listItem: {
-    color: "#d4d4d4",
+    color: "#5a4535",
     fontSize: 15,
-    lineHeight: 26,
-  },
-  codeCard: {
-    backgroundColor: "#050505",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  codeText: {
-    color: "#e5e5e5",
-    fontSize: 14,
-    fontFamily: "monospace",
-    marginBottom: 7,
+    lineHeight: 24,
   },
   buttons: {
     marginTop: 28,
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 14,
+    backgroundColor: "#c9a96e",
+    paddingVertical: 15,
     borderRadius: 14,
     alignItems: "center",
   },
   primaryButtonText: {
-    color: "#000000",
+    color: "#ffffff",
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: "900",
   },
   secondaryButton: {
-    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#2c1f14",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ffffff",
   },
   secondaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
+    color: "#2c1f14",
+    fontSize: 15,
     fontWeight: "800",
   },
 });

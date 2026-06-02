@@ -16,9 +16,6 @@ import { useAuthStore } from "../src/store/authStore";
 
 export default function Signup() {
   const cadastrar = useAuthStore((state) => state.cadastrar);
-  const autenticado = useAuthStore((state) => state.autenticado);
-  const usuario = useAuthStore((state) => state.usuario);
-  const ultimaAcao = useAuthStore((state) => state.ultimaAcao);
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -27,19 +24,10 @@ export default function Signup() {
   const [carregando, setCarregando] = useState(false);
 
   async function handleCadastro() {
-    if (carregando) {
-      return;
-    }
+    if (carregando) return;
 
     setCarregando(true);
-
-    const resultado = await cadastrar({
-      nome,
-      email,
-      senha,
-      confirmarSenha,
-    });
-
+    const resultado = await cadastrar({ nome, email, senha, confirmarSenha });
     setCarregando(false);
 
     if (!resultado.sucesso) {
@@ -47,7 +35,7 @@ export default function Signup() {
       return;
     }
 
-    Alert.alert("Cadastro temporário", resultado.mensagem);
+    Alert.alert("Bem-vindo!", "Sua conta foi criada com sucesso.");
     router.push("/perfil");
   }
 
@@ -58,11 +46,12 @@ export default function Signup() {
     >
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.logo}>LUTB</Text>
+          <View style={styles.logoBox}>
+            <Text style={styles.logoText}>LUTB</Text>
+          </View>
           <Text style={styles.title}>Criar conta</Text>
           <Text style={styles.subtitle}>
-            Cadastro temporário usando Zustand. Depois será substituído pelo
-            auth.signUp do Supabase.
+            Cadastre-se para acompanhar seus pedidos e favoritos.
           </Text>
         </View>
 
@@ -72,7 +61,7 @@ export default function Signup() {
             <TextInput
               style={styles.input}
               placeholder="Digite seu nome"
-              placeholderTextColor="#777777"
+              placeholderTextColor="#a89880"
               value={nome}
               onChangeText={setNome}
             />
@@ -83,7 +72,7 @@ export default function Signup() {
             <TextInput
               style={styles.input}
               placeholder="Digite seu email"
-              placeholderTextColor="#777777"
+              placeholderTextColor="#a89880"
               keyboardType="email-address"
               autoCapitalize="none"
               value={email}
@@ -96,7 +85,7 @@ export default function Signup() {
             <TextInput
               style={styles.input}
               placeholder="Crie uma senha"
-              placeholderTextColor="#777777"
+              placeholderTextColor="#a89880"
               secureTextEntry
               value={senha}
               onChangeText={setSenha}
@@ -108,14 +97,14 @@ export default function Signup() {
             <TextInput
               style={styles.input}
               placeholder="Repita a senha"
-              placeholderTextColor="#777777"
+              placeholderTextColor="#a89880"
               secureTextEntry
               value={confirmarSenha}
               onChangeText={setConfirmarSenha}
             />
           </View>
 
-          <Pressable style={styles.primaryButton} onPress={handleCadastro}>
+          <Pressable style={styles.primaryButton} onPress={handleCadastro} disabled={carregando}>
             <Text style={styles.primaryButtonText}>
               {carregando ? "Cadastrando..." : "Cadastrar"}
             </Text>
@@ -126,25 +115,6 @@ export default function Signup() {
               <Text style={styles.secondaryButtonText}>Já tenho conta</Text>
             </Pressable>
           </Link>
-        </View>
-
-        <View style={styles.statusBox}>
-          <Text style={styles.statusTitle}>Estado da autenticação</Text>
-          <Text style={styles.statusText}>
-            Status: {autenticado ? "Usuário logado" : "Usuário não logado"}
-          </Text>
-          <Text style={styles.statusText}>
-            Usuário: {usuario?.email || "nenhum"}
-          </Text>
-          <Text style={styles.statusText}>Última ação: {ultimaAcao}</Text>
-        </View>
-
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Integração futura</Text>
-          <Text style={styles.infoText}>
-            Quando o Supabase estiver pronto, esta tela deverá chamar
-            supabase.auth.signUp e gravar o usuário real no back-end.
-          </Text>
         </View>
 
         <Link href="/" asChild>
@@ -160,11 +130,11 @@ export default function Signup() {
 const styles = StyleSheet.create({
   keyboard: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
   },
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
   },
   content: {
     padding: 20,
@@ -173,119 +143,88 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     marginBottom: 28,
-    backgroundColor: "#171717",
+    backgroundColor: "#2c1f14",
     borderRadius: 24,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
+    padding: 28,
   },
-  logo: {
+  logoBox: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "#c9a96e",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  logoText: {
     color: "#ffffff",
-    fontSize: 34,
+    fontSize: 22,
     fontWeight: "900",
-    letterSpacing: 3,
-    marginBottom: 12,
+    letterSpacing: 2,
   },
   title: {
-    color: "#ffffff",
-    fontSize: 28,
+    color: "#f0e6d3",
+    fontSize: 26,
     fontWeight: "900",
     textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
-    color: "#cfcfcf",
-    fontSize: 15,
-    lineHeight: 22,
+    color: "#c8b89a",
+    fontSize: 14,
+    lineHeight: 21,
     textAlign: "center",
   },
   form: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 22,
     padding: 20,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
   },
   inputGroup: {
     marginBottom: 16,
   },
   label: {
-    color: "#ffffff",
-    fontSize: 15,
+    color: "#2c1f14",
+    fontSize: 14,
     fontWeight: "800",
     marginBottom: 8,
   },
   input: {
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#333333",
-    color: "#ffffff",
-    fontSize: 16,
+    borderColor: "#e0d8ce",
+    color: "#2c1f14",
+    fontSize: 15,
     paddingHorizontal: 14,
     paddingVertical: 13,
   },
   primaryButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 14,
+    backgroundColor: "#c9a96e",
+    paddingVertical: 15,
     borderRadius: 14,
     alignItems: "center",
     marginTop: 6,
   },
   primaryButtonText: {
-    color: "#000000",
+    color: "#ffffff",
     fontSize: 16,
     fontWeight: "900",
   },
   secondaryButton: {
     borderWidth: 1,
-    borderColor: "#ffffff",
+    borderColor: "#2c1f14",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
     marginTop: 12,
   },
   secondaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
+    color: "#2c1f14",
+    fontSize: 15,
     fontWeight: "800",
-  },
-  statusBox: {
-    marginTop: 22,
-    backgroundColor: "#ffffff",
-    borderRadius: 18,
-    padding: 18,
-  },
-  statusTitle: {
-    color: "#000000",
-    fontSize: 17,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  statusText: {
-    color: "#202020",
-    fontSize: 14,
-    lineHeight: 21,
-    fontWeight: "700",
-  },
-  infoBox: {
-    marginTop: 22,
-    backgroundColor: "#121212",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  infoTitle: {
-    color: "#ffffff",
-    fontSize: 17,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  infoText: {
-    color: "#cfcfcf",
-    fontSize: 14,
-    lineHeight: 21,
   },
   backButton: {
     marginTop: 22,
@@ -293,8 +232,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backButtonText: {
-    color: "#ffffff",
+    color: "#8a7560",
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "700",
   },
 });

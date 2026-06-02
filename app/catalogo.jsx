@@ -10,67 +10,47 @@ import {
   View,
 } from "react-native";
 
+import { useAuthStore } from "../src/store/authStore";
 import { useCategoriasStore } from "../src/store/categoriasStore";
 import { useProdutosStore } from "../src/store/produtosStore";
 
 function formatarPreco(preco) {
-  if (!preco) {
-    return "0,00";
-  }
-
+  if (!preco) return "0,00";
   return String(preco).replace("R$", "").trim();
 }
 
 function obterImagemProduto(imagem) {
-  if (!imagem) {
-    return null;
-  }
-
-  if (typeof imagem === "number") {
-    return imagem;
-  }
-
-  if (typeof imagem === "string") {
-    return { uri: imagem };
-  }
-
+  if (!imagem) return null;
+  if (typeof imagem === "number") return imagem;
+  if (typeof imagem === "string") return { uri: imagem };
   return imagem;
 }
 
 export default function Catalogo() {
   const produtos = useProdutosStore((state) => state.produtos);
   const categorias = useCategoriasStore((state) => state.categorias);
+  const autenticado = useAuthStore((state) => state.autenticado);
 
   const [busca, setBusca] = useState("");
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("Todas");
 
   const categoriasPorId = useMemo(() => {
     const mapa = {};
-
-    categorias.forEach((categoria) => {
-      mapa[categoria.id] = categoria;
-    });
-
+    categorias.forEach((categoria) => { mapa[categoria.id] = categoria; });
     return mapa;
   }, [categorias]);
 
   const opcoesCategorias = useMemo(() => {
-    return ["Todas", ...categorias.map((categoria) => categoria.id)];
+    return ["Todas", ...categorias.map((c) => c.id)];
   }, [categorias]);
 
   const produtosFiltrados = useMemo(() => {
     return produtos.filter((produto) => {
       const nomeProduto = produto.nome || "";
       const categoriaIdProduto = produto.categoriaId || "sem-categoria";
-
-      const correspondeBusca = nomeProduto
-        .toLowerCase()
-        .includes(busca.toLowerCase());
-
+      const correspondeBusca = nomeProduto.toLowerCase().includes(busca.toLowerCase());
       const correspondeCategoria =
-        categoriaSelecionada === "Todas" ||
-        categoriaIdProduto === categoriaSelecionada;
-
+        categoriaSelecionada === "Todas" || categoriaIdProduto === categoriaSelecionada;
       return correspondeBusca && correspondeCategoria;
     });
   }, [produtos, busca, categoriaSelecionada]);
@@ -84,26 +64,21 @@ export default function Catalogo() {
       <View style={styles.header}>
         <Text style={styles.title}>Catálogo</Text>
         <Text style={styles.subtitle}>
-          Produtos carregados pelo Zustand. Alterações feitas no admin aparecem
-          aqui enquanto o app estiver aberto.
+          Explore nossa coleção de colares artesanais feitos à mão.
         </Text>
       </View>
 
       <View style={styles.searchBox}>
-        <Text style={styles.label}>Buscar produto</Text>
-
         <TextInput
           style={styles.input}
-          placeholder="Digite o nome do produto"
-          placeholderTextColor="#777777"
+          placeholder="Buscar produto..."
+          placeholderTextColor="#a89880"
           value={busca}
           onChangeText={setBusca}
         />
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Categorias</Text>
-
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -119,18 +94,10 @@ export default function Catalogo() {
             return (
               <Pressable
                 key={categoriaId}
-                style={[
-                  styles.categoryButton,
-                  ativa && styles.categoryButtonActive,
-                ]}
+                style={[styles.categoryButton, ativa && styles.categoryButtonActive]}
                 onPress={() => setCategoriaSelecionada(categoriaId)}
               >
-                <Text
-                  style={[
-                    styles.categoryButtonText,
-                    ativa && styles.categoryButtonTextActive,
-                  ]}
-                >
+                <Text style={[styles.categoryButtonText, ativa && styles.categoryButtonTextActive]}>
                   {nomeCategoria}
                 </Text>
               </Pressable>
@@ -139,20 +106,10 @@ export default function Catalogo() {
         </ScrollView>
       </View>
 
-      <View style={styles.relationshipBox}>
-        <Text style={styles.relationshipTitle}>Relacionamento exibido</Text>
-        <Text style={styles.relationshipText}>
-          Cada produto usa o campo categoriaId para se vincular a uma categoria
-          cadastrada no Zustand.
-        </Text>
-      </View>
-
       <View style={styles.section}>
         <View style={styles.listHeader}>
           <Text style={styles.sectionTitle}>Produtos</Text>
-          <Text style={styles.counterText}>
-            {produtosFiltrados.length} item(ns)
-          </Text>
+          <Text style={styles.counterText}>{produtosFiltrados.length} item(ns)</Text>
         </View>
 
         {produtosFiltrados.length === 0 ? (
@@ -165,10 +122,7 @@ export default function Catalogo() {
         ) : (
           produtosFiltrados.map((produto) => {
             const imagemProduto = obterImagemProduto(produto.imagem);
-            const nomeCategoria = obterNomeCategoria(
-              produto.categoriaId,
-              produto.categoria
-            );
+            const nomeCategoria = obterNomeCategoria(produto.categoriaId, produto.categoria);
 
             return (
               <Link key={produto.id} href={`/produto/${produto.id}`} asChild>
@@ -187,19 +141,10 @@ export default function Catalogo() {
 
                   <View style={styles.productInfo}>
                     <Text style={styles.productName}>{produto.nome}</Text>
-
-                    <Text style={styles.productCategory}>
-                      Categoria: {nomeCategoria}
-                    </Text>
-
-                    <Text style={styles.productCategoryId}>
-                      categoriaId: {produto.categoriaId || "não informado"}
-                    </Text>
-
+                    <Text style={styles.productCategory}>{nomeCategoria}</Text>
                     <Text style={styles.productDescription} numberOfLines={2}>
                       {produto.descricao || "Produto sem descrição cadastrada."}
                     </Text>
-
                     <Text style={styles.productPrice}>
                       R$ {formatarPreco(produto.preco)}
                     </Text>
@@ -218,11 +163,13 @@ export default function Catalogo() {
           </Pressable>
         </Link>
 
-        <Link href="/admin/produtos" asChild>
-          <Pressable style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Abrir Admin</Text>
-          </Pressable>
-        </Link>
+        {autenticado && (
+          <Link href="/admin/produtos" asChild>
+            <Pressable style={styles.adminButton}>
+              <Text style={styles.adminButtonText}>Gerenciar produtos</Text>
+            </Pressable>
+          </Link>
+        )}
 
         <Link href="/" asChild>
           <Pressable style={styles.secondaryButton}>
@@ -237,60 +184,47 @@ export default function Catalogo() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
   },
   content: {
     padding: 20,
     paddingBottom: 40,
   },
   header: {
-    backgroundColor: "#171717",
+    backgroundColor: "#2c1f14",
     borderRadius: 24,
     padding: 24,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
   },
   title: {
-    color: "#ffffff",
+    color: "#f0e6d3",
     fontSize: 30,
     fontWeight: "900",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   subtitle: {
-    color: "#cfcfcf",
+    color: "#c8b89a",
     fontSize: 15,
     lineHeight: 22,
   },
   searchBox: {
-    marginTop: 22,
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  label: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "800",
-    marginBottom: 8,
+    marginTop: 18,
   },
   input: {
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#ffffff",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#333333",
-    color: "#ffffff",
-    fontSize: 16,
-    paddingHorizontal: 14,
+    borderColor: "#e0d8ce",
+    color: "#2c1f14",
+    fontSize: 15,
+    paddingHorizontal: 16,
     paddingVertical: 13,
   },
   section: {
-    marginTop: 26,
+    marginTop: 22,
   },
   sectionTitle: {
-    color: "#ffffff",
-    fontSize: 22,
+    color: "#2c1f14",
+    fontSize: 20,
     fontWeight: "900",
     marginBottom: 14,
   },
@@ -299,42 +233,24 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   categoryButton: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
   },
   categoryButtonActive: {
-    backgroundColor: "#ffffff",
-    borderColor: "#ffffff",
+    backgroundColor: "#2c1f14",
+    borderColor: "#2c1f14",
   },
   categoryButtonText: {
-    color: "#ffffff",
+    color: "#5a4535",
     fontSize: 14,
     fontWeight: "800",
   },
   categoryButtonTextActive: {
-    color: "#000000",
-  },
-  relationshipBox: {
-    marginTop: 22,
-    backgroundColor: "#ffffff",
-    borderRadius: 18,
-    padding: 16,
-  },
-  relationshipTitle: {
-    color: "#000000",
-    fontSize: 17,
-    fontWeight: "900",
-    marginBottom: 6,
-  },
-  relationshipText: {
-    color: "#202020",
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: "600",
+    color: "#f0e6d3",
   },
   listHeader: {
     flexDirection: "row",
@@ -342,35 +258,35 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   counterText: {
-    color: "#bfbfbf",
+    color: "#8a7560",
     fontSize: 14,
     fontWeight: "700",
     marginBottom: 14,
   },
   emptyBox: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
   },
   emptyTitle: {
-    color: "#ffffff",
+    color: "#2c1f14",
     fontSize: 17,
     fontWeight: "900",
     marginBottom: 8,
   },
   emptyText: {
-    color: "#cfcfcf",
+    color: "#8a7560",
     fontSize: 14,
     lineHeight: 21,
   },
   productCard: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 14,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
     marginBottom: 14,
     flexDirection: "row",
     gap: 14,
@@ -379,7 +295,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 112,
     borderRadius: 14,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#f5f1eb",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -389,8 +305,8 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   imagePlaceholder: {
-    color: "#000000",
-    fontSize: 18,
+    color: "#c9a96e",
+    fontSize: 16,
     fontWeight: "900",
     letterSpacing: 1,
   },
@@ -398,60 +314,55 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   productName: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "900",
-    marginBottom: 6,
-  },
-  productCategory: {
-    color: "#ffffff",
-    fontSize: 13,
+    color: "#2c1f14",
+    fontSize: 17,
     fontWeight: "900",
     marginBottom: 4,
   },
-  productCategoryId: {
-    color: "#a8a8a8",
+  productCategory: {
+    color: "#c9a96e",
     fontSize: 12,
-    fontWeight: "700",
-    marginBottom: 8,
+    fontWeight: "800",
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   productDescription: {
-    color: "#cfcfcf",
-    fontSize: 14,
-    lineHeight: 20,
+    color: "#8a7560",
+    fontSize: 13,
+    lineHeight: 19,
     marginBottom: 8,
   },
   productPrice: {
-    color: "#ffffff",
+    color: "#2c1f14",
     fontSize: 17,
     fontWeight: "900",
   },
   buttons: {
     marginTop: 28,
-  },
-  primaryButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: 12,
-  },
-  primaryButtonText: {
-    color: "#000000",
-    fontSize: 16,
-    fontWeight: "900",
+    gap: 12,
   },
   secondaryButton: {
     borderWidth: 1,
-    borderColor: "#ffffff",
+    borderColor: "#2c1f14",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
-    marginTop: 12,
   },
   secondaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
+    color: "#2c1f14",
+    fontSize: 15,
     fontWeight: "800",
+  },
+  adminButton: {
+    backgroundColor: "#2c1f14",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  adminButtonText: {
+    color: "#f0e6d3",
+    fontSize: 15,
+    fontWeight: "900",
   },
 });

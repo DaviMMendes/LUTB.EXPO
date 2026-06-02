@@ -1,4 +1,5 @@
 import { Link } from "expo-router";
+import { useAuthStore } from "../src/store/authStore";
 import {
   Pressable,
   ScrollView,
@@ -8,6 +9,8 @@ import {
 } from "react-native";
 
 export default function Home() {
+  const autenticado = useAuthStore((state) => state.autenticado);
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.hero}>
@@ -18,8 +21,8 @@ export default function Home() {
         <Text style={styles.title}>LUTB Store</Text>
 
         <Text style={styles.subtitle}>
-          Aplicativo mobile da LUTB desenvolvido em React Native com Expo,
-          migrado a partir do antigo site em Next.js.
+          Colares artesanais feitos à mão com materiais selecionados.
+          Cada peça é única.
         </Text>
 
         <View style={styles.actions}>
@@ -29,80 +32,70 @@ export default function Home() {
             </Pressable>
           </Link>
 
-          <Link href="/categorias" asChild>
-            <Pressable style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>
-                Ver categorias
-              </Text>
-            </Pressable>
-          </Link>
-
           <Link href="/sobre" asChild>
             <Pressable style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>Sobre o app</Text>
+              <Text style={styles.secondaryButtonText}>Sobre a loja</Text>
             </Pressable>
           </Link>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Acesso rápido</Text>
+        <Text style={styles.sectionTitle}>Navegação</Text>
 
         <View style={styles.grid}>
           <Link href="/catalogo" asChild>
             <Pressable style={styles.gridItem}>
+              <Text style={styles.gridItemEmoji}>🛍️</Text>
               <Text style={styles.gridItemTitle}>Catálogo</Text>
-              <Text style={styles.gridItemText}>Produtos da loja</Text>
+              <Text style={styles.gridItemText}>Todos os produtos</Text>
             </Pressable>
           </Link>
 
           <Link href="/categorias" asChild>
             <Pressable style={styles.gridItem}>
+              <Text style={styles.gridItemEmoji}>✨</Text>
               <Text style={styles.gridItemTitle}>Categorias</Text>
-              <Text style={styles.gridItemText}>
-                Relação Produto/Categoria
-              </Text>
-            </Pressable>
-          </Link>
-
-          <Link href="/login" asChild>
-            <Pressable style={styles.gridItem}>
-              <Text style={styles.gridItemTitle}>Login</Text>
-              <Text style={styles.gridItemText}>Acesso do usuário</Text>
+              <Text style={styles.gridItemText}>Explore por tipo</Text>
             </Pressable>
           </Link>
 
           <Link href="/perfil" asChild>
             <Pressable style={styles.gridItem}>
-              <Text style={styles.gridItemTitle}>Perfil</Text>
-              <Text style={styles.gridItemText}>Dados do cliente</Text>
-            </Pressable>
-          </Link>
-
-          <Link href="/admin/produtos" asChild>
-            <Pressable style={styles.gridItem}>
-              <Text style={styles.gridItemTitle}>Admin</Text>
-              <Text style={styles.gridItemText}>CRUD temporário</Text>
+              <Text style={styles.gridItemEmoji}>👤</Text>
+              <Text style={styles.gridItemTitle}>Minha conta</Text>
+              <Text style={styles.gridItemText}>Perfil e dados</Text>
             </Pressable>
           </Link>
 
           <Link href="/sobre" asChild>
             <Pressable style={styles.gridItem}>
+              <Text style={styles.gridItemEmoji}>🌿</Text>
               <Text style={styles.gridItemTitle}>Sobre</Text>
-              <Text style={styles.gridItemText}>Resumo técnico</Text>
+              <Text style={styles.gridItemText}>Nossa história</Text>
             </Pressable>
           </Link>
         </View>
       </View>
 
+      {autenticado && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Administração</Text>
+          <Link href="/admin/produtos" asChild>
+            <Pressable style={styles.adminButton}>
+              <Text style={styles.adminButtonText}>⚙️  Gerenciar produtos</Text>
+            </Pressable>
+          </Link>
+        </View>
+      )}
+
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Equipe</Text>
+        <Text style={styles.sectionTitle}>Nossa equipe</Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Integrantes do projeto</Text>
           <Text style={styles.cardText}>
-            Acesse a tela individual de cada integrante para visualizar nome, RA
-            e função no desenvolvimento do aplicativo LUTB.
+            O aplicativo LUTB foi desenvolvido com dedicação por três
+            integrantes. Conheça cada um deles abaixo.
           </Text>
         </View>
 
@@ -112,15 +105,10 @@ export default function Home() {
               <View style={styles.teamAvatar}>
                 <Text style={styles.teamAvatarText}>D</Text>
               </View>
-
               <View style={styles.teamInfo}>
-                <Text style={styles.teamButtonName}>
-                  Davi Magalhães Mendes
-                </Text>
+                <Text style={styles.teamButtonName}>Davi Magalhães Mendes</Text>
                 <Text style={styles.teamButtonRa}>RA: 852600</Text>
-                <Text style={styles.teamButtonRole}>
-                  Base Expo, rotas, Zustand e autenticação
-                </Text>
+                <Text style={styles.teamButtonRole}>Base Expo, rotas e autenticação</Text>
               </View>
             </Pressable>
           </Link>
@@ -130,15 +118,10 @@ export default function Home() {
               <View style={styles.teamAvatar}>
                 <Text style={styles.teamAvatarText}>A</Text>
               </View>
-
               <View style={styles.teamInfo}>
-                <Text style={styles.teamButtonName}>
-                  Artur Lima Pinto Bacalhau
-                </Text>
+                <Text style={styles.teamButtonName}>Artur Lima Pinto Bacalhau</Text>
                 <Text style={styles.teamButtonRa}>RA: 852137</Text>
-                <Text style={styles.teamButtonRole}>
-                  Supabase, banco de dados e back-end
-                </Text>
+                <Text style={styles.teamButtonRole}>Banco de dados e back-end</Text>
               </View>
             </Pressable>
           </Link>
@@ -148,95 +131,19 @@ export default function Home() {
               <View style={styles.teamAvatar}>
                 <Text style={styles.teamAvatarText}>L</Text>
               </View>
-
               <View style={styles.teamInfo}>
-                <Text style={styles.teamButtonName}>
-                  Luiz Henrique Camello
-                </Text>
+                <Text style={styles.teamButtonName}>Luiz Henrique Camello</Text>
                 <Text style={styles.teamButtonRa}>RA: 852839</Text>
-                <Text style={styles.teamButtonRole}>
-                  Visual, catálogo, telas e estilização geral
-                </Text>
+                <Text style={styles.teamButtonRole}>Visual, catálogo e estilização</Text>
               </View>
             </Pressable>
           </Link>
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Destaques da LUTB</Text>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Catálogo de produtos</Text>
-          <Text style={styles.cardText}>
-            Navegação por produtos temporários usando mock local enquanto o banco
-            de dados no Supabase ainda está em desenvolvimento.
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Categorias</Text>
-          <Text style={styles.cardText}>
-            Segunda entidade do app. As categorias agrupam produtos por meio do
-            campo categoriaId, demonstrando o relacionamento entre entidades.
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Detalhes do produto</Text>
-          <Text style={styles.cardText}>
-            Cada item possui uma tela própria com informações do produto, imagem,
-            descrição, categoria e preço.
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Estrutura preparada</Text>
-          <Text style={styles.cardText}>
-            O projeto já está organizado para receber autenticação, perfil,
-            painel administrativo, Zustand e integração real com Supabase.
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Requisitos atendidos</Text>
-
-        <View style={styles.requirementsBox}>
-          <Text style={styles.requirementItem}>• Expo Router configurado</Text>
-          <Text style={styles.requirementItem}>• Home criada</Text>
-          <Text style={styles.requirementItem}>• Tela Sobre criada</Text>
-          <Text style={styles.requirementItem}>
-            • Uma tela para cada integrante
-          </Text>
-          <Text style={styles.requirementItem}>
-            • Interações com botões e formulários
-          </Text>
-          <Text style={styles.requirementItem}>
-            • Zustand para gerenciamento de estado
-          </Text>
-          <Text style={styles.requirementItem}>
-            • CRUD temporário de produtos
-          </Text>
-          <Text style={styles.requirementItem}>
-            • Segunda entidade: Categoria
-          </Text>
-          <Text style={styles.requirementItem}>
-            • Relacionamento Produto/Categoria
-          </Text>
-          <Text style={styles.requirementItem}>
-            • Preparação para Supabase
-          </Text>
-          <Text style={styles.requirementItem}>
-            • Estrutura para autenticação
-          </Text>
-        </View>
-      </View>
-
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Projeto acadêmico desenvolvido em React Native, Expo Router, Zustand e
-          integração planejada com Supabase.
+          LUTB — Colares artesanais feitos com carinho ✦
         </Text>
       </View>
     </ScrollView>
@@ -246,63 +153,62 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
   },
   content: {
     padding: 20,
     paddingBottom: 40,
   },
   hero: {
-    backgroundColor: "#171717",
+    backgroundColor: "#2c1f14",
     borderRadius: 24,
-    padding: 24,
+    padding: 28,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
   },
   logoBox: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: "#ffffff",
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: "#c9a96e",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 18,
   },
   logoText: {
-    color: "#000000",
-    fontSize: 28,
+    color: "#ffffff",
+    fontSize: 26,
     fontWeight: "900",
-    letterSpacing: 2,
+    letterSpacing: 3,
   },
   title: {
-    color: "#ffffff",
+    color: "#f0e6d3",
     fontSize: 32,
     fontWeight: "900",
     textAlign: "center",
     marginBottom: 10,
   },
   subtitle: {
-    color: "#d4d4d4",
-    fontSize: 16,
-    lineHeight: 24,
+    color: "#c8b89a",
+    fontSize: 15,
+    lineHeight: 23,
     textAlign: "center",
-    marginBottom: 22,
+    marginBottom: 24,
   },
   actions: {
     width: "100%",
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 14,
+    backgroundColor: "#c9a96e",
+    paddingVertical: 15,
     borderRadius: 14,
     alignItems: "center",
   },
   primaryButtonText: {
-    color: "#000000",
+    color: "#ffffff",
     fontSize: 16,
     fontWeight: "900",
+    letterSpacing: 0.5,
   },
   secondaryButton: {
     backgroundColor: "transparent",
@@ -310,10 +216,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ffffff",
+    borderColor: "#c8b89a",
   },
   secondaryButtonText: {
-    color: "#ffffff",
+    color: "#f0e6d3",
     fontSize: 16,
     fontWeight: "800",
   },
@@ -321,8 +227,8 @@ const styles = StyleSheet.create({
     marginTop: 28,
   },
   sectionTitle: {
-    color: "#ffffff",
-    fontSize: 22,
+    color: "#2c1f14",
+    fontSize: 20,
     fontWeight: "900",
     marginBottom: 14,
   },
@@ -333,111 +239,104 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     width: "48%",
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  gridItemTitle: {
-    color: "#ffffff",
-    fontSize: 17,
-    fontWeight: "900",
-    marginBottom: 6,
-  },
-  gridItemText: {
-    color: "#bfbfbf",
-    fontSize: 14,
-  },
-  card: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 18,
-    marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
   },
-  cardTitle: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "900",
+  gridItemEmoji: {
+    fontSize: 24,
     marginBottom: 8,
   },
-  cardText: {
-    color: "#cfcfcf",
+  gridItemTitle: {
+    color: "#2c1f14",
+    fontSize: 16,
+    fontWeight: "900",
+    marginBottom: 4,
+  },
+  gridItemText: {
+    color: "#8a7560",
+    fontSize: 13,
+  },
+  adminButton: {
+    backgroundColor: "#2c1f14",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  adminButtonText: {
+    color: "#f0e6d3",
     fontSize: 15,
-    lineHeight: 22,
+    fontWeight: "900",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "#e0d8ce",
+  },
+  cardText: {
+    color: "#5a4535",
+    fontSize: 15,
+    lineHeight: 23,
   },
   teamButtons: {
     gap: 12,
   },
   teamButton: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
   },
   teamAvatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: "#ffffff",
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#c9a96e",
     alignItems: "center",
     justifyContent: "center",
   },
   teamAvatarText: {
-    color: "#000000",
-    fontSize: 24,
+    color: "#ffffff",
+    fontSize: 22,
     fontWeight: "900",
   },
   teamInfo: {
     flex: 1,
   },
   teamButtonName: {
-    color: "#ffffff",
-    fontSize: 17,
+    color: "#2c1f14",
+    fontSize: 16,
     fontWeight: "900",
-    marginBottom: 4,
+    marginBottom: 3,
   },
   teamButtonRa: {
-    color: "#bfbfbf",
+    color: "#8a7560",
     fontSize: 13,
     fontWeight: "700",
-    marginBottom: 4,
+    marginBottom: 3,
   },
   teamButtonRole: {
-    color: "#cfcfcf",
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  requirementsBox: {
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  requirementItem: {
-    color: "#d4d4d4",
-    fontSize: 15,
-    lineHeight: 25,
+    color: "#5a4535",
+    fontSize: 13,
+    lineHeight: 19,
   },
   footer: {
-    marginTop: 28,
+    marginTop: 32,
     padding: 18,
-    borderRadius: 18,
-    backgroundColor: "#121212",
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
+    alignItems: "center",
   },
   footerText: {
-    color: "#bfbfbf",
+    color: "#8a7560",
     fontSize: 14,
     textAlign: "center",
-    lineHeight: 20,
   },
 });

@@ -14,23 +14,13 @@ export default function Perfil() {
   const usuario = useAuthStore((state) => state.usuario);
   const autenticado = useAuthStore((state) => state.autenticado);
   const logout = useAuthStore((state) => state.logout);
-  const carregarUsuarioMock = useAuthStore((state) => state.carregarUsuarioMock);
-  const ultimaAcao = useAuthStore((state) => state.ultimaAcao);
-  const modo = useAuthStore((state) => state.modo);
 
   async function handleLogout() {
-    const resultado = await logout();
-
-    Alert.alert("Logout temporário", resultado.mensagem);
+    await logout();
     router.push("/");
   }
 
-  function handleCarregarMock() {
-    carregarUsuarioMock();
-    Alert.alert("Usuário mock", "Usuário temporário carregado no Zustand.");
-  }
-
-  const inicial = usuario?.nome?.charAt(0)?.toUpperCase() || "L";
+  const inicial = usuario?.nome?.charAt(0)?.toUpperCase() || "U";
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -38,40 +28,31 @@ export default function Perfil() {
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{inicial}</Text>
         </View>
-
-        <Text style={styles.title}>Perfil</Text>
-
+        <Text style={styles.title}>Minha conta</Text>
         <Text style={styles.subtitle}>
-          Dados carregados pela store de autenticação temporária. Depois esta
-          tela deverá ler a sessão real do Supabase.
+          {autenticado && usuario ? usuario.email : "Faça login para continuar"}
         </Text>
       </View>
 
       {!autenticado || !usuario ? (
         <View style={styles.notLoggedBox}>
-          <Text style={styles.notLoggedTitle}>Nenhum usuário logado</Text>
-
+          <Text style={styles.notLoggedTitle}>Você não está logado</Text>
           <Text style={styles.notLoggedText}>
-            Faça login, crie uma conta ou carregue um usuário mock para testar o
-            fluxo de autenticação.
+            Faça login ou crie uma conta para acessar seu perfil.
           </Text>
 
           <View style={styles.buttons}>
             <Link href="/login" asChild>
               <Pressable style={styles.primaryButton}>
-                <Text style={styles.primaryButtonText}>Ir para Login</Text>
+                <Text style={styles.primaryButtonText}>Fazer login</Text>
               </Pressable>
             </Link>
 
             <Link href="/signup" asChild>
               <Pressable style={styles.secondaryButton}>
-                <Text style={styles.secondaryButtonText}>Criar Conta</Text>
+                <Text style={styles.secondaryButtonText}>Criar conta</Text>
               </Pressable>
             </Link>
-
-            <Pressable style={styles.mockButton} onPress={handleCarregarMock}>
-              <Text style={styles.mockButtonText}>Carregar usuário mock</Text>
-            </Pressable>
           </View>
         </View>
       ) : (
@@ -84,76 +65,16 @@ export default function Perfil() {
                 <Text style={styles.profileLabel}>Nome</Text>
                 <Text style={styles.profileValue}>{usuario.nome}</Text>
               </View>
-
               <View style={styles.divider} />
-
               <View style={styles.profileRow}>
                 <Text style={styles.profileLabel}>Email</Text>
                 <Text style={styles.profileValue}>{usuario.email}</Text>
               </View>
-
               <View style={styles.divider} />
-
               <View style={styles.profileRow}>
-                <Text style={styles.profileLabel}>Tipo</Text>
+                <Text style={styles.profileLabel}>Tipo de conta</Text>
                 <Text style={styles.profileValue}>{usuario.tipo}</Text>
               </View>
-
-              <View style={styles.divider} />
-
-              <View style={styles.profileRow}>
-                <Text style={styles.profileLabel}>Status</Text>
-                <Text style={styles.profileValue}>{usuario.status}</Text>
-              </View>
-
-              <View style={styles.divider} />
-
-              <View style={styles.profileRow}>
-                <Text style={styles.profileLabel}>Modo</Text>
-                <Text style={styles.profileValue}>{modo}</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Estado da sessão</Text>
-
-            <View style={styles.statusBox}>
-              <Text style={styles.statusText}>
-                Autenticado: {autenticado ? "sim" : "não"}
-              </Text>
-              <Text style={styles.statusText}>Última ação: {ultimaAcao}</Text>
-              <Text style={styles.statusText}>
-                Fonte: Zustand temporário, preparado para Supabase Auth.
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Área do cliente</Text>
-
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Pedidos</Text>
-              <Text style={styles.cardText}>
-                Futuramente esta área poderá exibir pedidos realizados pelo
-                cliente, status de entrega e histórico de compras.
-              </Text>
-            </View>
-
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Favoritos</Text>
-              <Text style={styles.cardText}>
-                Esta seção pode ser usada depois para salvar produtos favoritos
-                do catálogo.
-              </Text>
-            </View>
-
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Dados da conta</Text>
-              <Text style={styles.cardText}>
-                Com o Supabase, esta tela poderá carregar informações reais do
-                usuário autenticado.
-              </Text>
             </View>
           </View>
 
@@ -165,7 +86,7 @@ export default function Perfil() {
             </Link>
 
             <Pressable style={styles.logoutButton} onPress={handleLogout}>
-              <Text style={styles.logoutButtonText}>Sair</Text>
+              <Text style={styles.logoutButtonText}>Sair da conta</Text>
             </Pressable>
           </View>
         </>
@@ -183,7 +104,7 @@ export default function Perfil() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
   },
   content: {
     padding: 20,
@@ -191,171 +112,129 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    backgroundColor: "#171717",
+    backgroundColor: "#2c1f14",
     borderRadius: 24,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
+    padding: 28,
   },
   avatar: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: "#ffffff",
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    backgroundColor: "#c9a96e",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
   avatarText: {
-    color: "#000000",
-    fontSize: 38,
+    color: "#ffffff",
+    fontSize: 34,
     fontWeight: "900",
   },
   title: {
-    color: "#ffffff",
-    fontSize: 30,
+    color: "#f0e6d3",
+    fontSize: 26,
     fontWeight: "900",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   subtitle: {
-    color: "#cfcfcf",
-    fontSize: 15,
-    lineHeight: 22,
+    color: "#c8b89a",
+    fontSize: 14,
     textAlign: "center",
   },
   section: {
     marginTop: 26,
   },
   sectionTitle: {
-    color: "#ffffff",
-    fontSize: 22,
+    color: "#2c1f14",
+    fontSize: 20,
     fontWeight: "900",
     marginBottom: 14,
   },
   notLoggedBox: {
     marginTop: 26,
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
-    padding: 18,
+    padding: 22,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
   },
   notLoggedTitle: {
-    color: "#ffffff",
-    fontSize: 20,
+    color: "#2c1f14",
+    fontSize: 19,
     fontWeight: "900",
     marginBottom: 8,
   },
   notLoggedText: {
-    color: "#cfcfcf",
-    fontSize: 15,
+    color: "#8a7560",
+    fontSize: 14,
     lineHeight: 22,
+    marginBottom: 20,
   },
   profileCard: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
   },
   profileRow: {
-    gap: 6,
+    gap: 4,
   },
   profileLabel: {
-    color: "#999999",
-    fontSize: 13,
+    color: "#a89880",
+    fontSize: 12,
     fontWeight: "800",
     textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   profileValue: {
-    color: "#ffffff",
+    color: "#2c1f14",
     fontSize: 16,
     fontWeight: "700",
   },
   divider: {
     height: 1,
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#f0ebe3",
     marginVertical: 14,
   },
-  statusBox: {
-    backgroundColor: "#ffffff",
-    borderRadius: 18,
-    padding: 18,
-  },
-  statusText: {
-    color: "#202020",
-    fontSize: 14,
-    lineHeight: 21,
-    fontWeight: "700",
-  },
-  card: {
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  cardTitle: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  cardText: {
-    color: "#cfcfcf",
-    fontSize: 15,
-    lineHeight: 22,
-  },
   buttons: {
-    marginTop: 28,
+    marginTop: 26,
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 14,
+    backgroundColor: "#c9a96e",
+    paddingVertical: 15,
     borderRadius: 14,
     alignItems: "center",
   },
   primaryButtonText: {
-    color: "#000000",
+    color: "#ffffff",
     fontSize: 16,
     fontWeight: "900",
   },
   secondaryButton: {
     borderWidth: 1,
-    borderColor: "#ffffff",
+    borderColor: "#2c1f14",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
   },
   secondaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
+    color: "#2c1f14",
+    fontSize: 15,
     fontWeight: "800",
   },
-  mockButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  mockButtonText: {
-    color: "#000000",
-    fontSize: 16,
-    fontWeight: "900",
-  },
   logoutButton: {
-    backgroundColor: "#2a1111",
+    backgroundColor: "#fff0f0",
     borderWidth: 1,
-    borderColor: "#703030",
+    borderColor: "#f0c8c8",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
   },
   logoutButtonText: {
-    color: "#ffb3b3",
-    fontSize: 16,
+    color: "#9f3030",
+    fontSize: 15,
     fontWeight: "900",
   },
   backButton: {
@@ -364,8 +243,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backButtonText: {
-    color: "#ffffff",
+    color: "#8a7560",
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "700",
   },
 });

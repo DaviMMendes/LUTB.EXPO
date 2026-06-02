@@ -17,10 +17,10 @@ export default function RootLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: '#171717' },
-        headerTintColor: '#ffffff',
+        headerStyle: { backgroundColor: '#2c1f14' },
+        headerTintColor: '#f0e6d3',
         headerTitleStyle: { fontWeight: '700' },
-        contentStyle: { backgroundColor: '#0f0f0f' },
+        contentStyle: { backgroundColor: '#f5f1eb' },
       }}
     >
       <Stack.Screen name="index" options={{ title: 'LUTB' }} />
@@ -31,7 +31,7 @@ export default function RootLayout() {
       <Stack.Screen name="signup" options={{ title: 'Cadastro' }} />
       <Stack.Screen name="perfil" options={{ title: 'Perfil' }} />
       <Stack.Screen name="produto/[id]" options={{ title: 'Produto' }} />
-      <Stack.Screen name="admin/produtos" options={{ title: 'Admin Produtos' }} />
+      <Stack.Screen name="admin/produtos" options={{ title: 'Administração' }} />
       <Stack.Screen name="equipe/davi" options={{ title: 'Davi' }} />
       <Stack.Screen name="equipe/artur" options={{ title: 'Artur' }} />
       <Stack.Screen name="equipe/luiz" options={{ title: 'Luiz' }} />

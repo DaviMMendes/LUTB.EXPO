@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -9,10 +9,13 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useAuthStore } from "../../src/store/authStore";
 import { useCategoriasStore } from "../../src/store/categoriasStore";
 import { useProdutosStore } from "../../src/store/produtosStore";
 
 export default function AdminProdutosScreen() {
+  const autenticado = useAuthStore((state) => state.autenticado);
+
   const {
     produtos,
     adicionarProduto,
@@ -32,11 +35,15 @@ export default function AdminProdutosScreen() {
   const [categoriaId, setCategoriaId] = useState(categorias[0]?.id || "acessorios");
   const [mensagem, setMensagem] = useState("");
 
+  useEffect(() => {
+    if (!autenticado) {
+      router.replace("/login");
+    }
+  }, [autenticado]);
+
   const categoriasPorId = useMemo(() => {
     const mapa = {};
-    categorias.forEach((categoria) => {
-      mapa[categoria.id] = categoria;
-    });
+    categorias.forEach((categoria) => { mapa[categoria.id] = categoria; });
     return mapa;
   }, [categorias]);
 
@@ -57,8 +64,8 @@ export default function AdminProdutosScreen() {
   }
 
   function mostrarMensagem(texto) {
-    const horario = new Date().toLocaleTimeString();
-    setMensagem(`${texto} (${horario})`);
+    setMensagem(texto);
+    setTimeout(() => setMensagem(""), 3000);
   }
 
   async function salvarProduto() {
@@ -128,9 +135,21 @@ export default function AdminProdutosScreen() {
   }
 
   async function restaurarMock() {
-    await restaurarProdutosDoMock();
-    limparCampos();
-    mostrarMensagem("Produtos restaurados");
+    Alert.alert(
+      "Restaurar produtos",
+      "Isso irá repor os produtos originais. Deseja continuar?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Restaurar",
+          onPress: async () => {
+            await restaurarProdutosDoMock();
+            limparCampos();
+            mostrarMensagem("Produtos restaurados com sucesso");
+          },
+        },
+      ]
+    );
   }
 
   function formatarPreco(valor) {
@@ -139,36 +158,32 @@ export default function AdminProdutosScreen() {
     return `R$ ${numero.toFixed(2).replace(".", ",")}`;
   }
 
+  if (!autenticado) return null;
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Pressable style={styles.backButton} onPress={voltar}>
-          <Text style={styles.backButtonText}>Voltar</Text>
+          <Text style={styles.backButtonText}>← Voltar</Text>
         </Pressable>
-        <Text style={styles.title}>Administração de Produtos</Text>
-        <Text style={styles.subtitle}>
-          CRUD conectado ao Supabase.
-        </Text>
+        <Text style={styles.title}>Administração</Text>
+        <Text style={styles.subtitle}>Gerencie os produtos da loja.</Text>
       </View>
 
       <View style={styles.restoreCard}>
-        <Text style={styles.cardTitle}>Controle</Text>
+        <Text style={styles.cardTitle}>Visão geral</Text>
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={styles.statNumber}>{produtos.length}</Text>
-            <Text style={styles.statLabel}>Produtos atuais</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>8</Text>
-            <Text style={styles.statLabel}>Total original</Text>
+            <Text style={styles.statLabel}>Produtos</Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statNumber}>{resetVersao}</Text>
-            <Text style={styles.statLabel}>Versão reset</Text>
+            <Text style={styles.statLabel}>Versão</Text>
           </View>
         </View>
         <Pressable style={styles.restoreButton} onPress={restaurarMock}>
-          <Text style={styles.restoreButtonText}>Restaurar produtos do mock</Text>
+          <Text style={styles.restoreButtonText}>Restaurar produtos originais</Text>
         </Pressable>
         {mensagem ? <Text style={styles.successMessage}>{mensagem}</Text> : null}
       </View>
@@ -182,6 +197,7 @@ export default function AdminProdutosScreen() {
         <TextInput
           style={styles.input}
           placeholder="Nome do produto"
+          placeholderTextColor="#a89880"
           value={nome}
           onChangeText={setNome}
         />
@@ -189,7 +205,8 @@ export default function AdminProdutosScreen() {
         <Text style={styles.label}>Preço</Text>
         <TextInput
           style={styles.input}
-          placeholder="Exemplo: 39.90"
+          placeholder="Ex: 39.90"
+          placeholderTextColor="#a89880"
           value={preco}
           onChangeText={setPreco}
           keyboardType="decimal-pad"
@@ -199,6 +216,7 @@ export default function AdminProdutosScreen() {
         <TextInput
           style={[styles.input, styles.textArea]}
           placeholder="Descrição do produto"
+          placeholderTextColor="#a89880"
           value={descricao}
           onChangeText={setDescricao}
           multiline
@@ -245,19 +263,13 @@ export default function AdminProdutosScreen() {
               <View style={styles.productHeader}>
                 <View style={styles.productTitleBox}>
                   <Text style={styles.productName}>{produto.nome}</Text>
-                  <Text style={styles.productId}>ID: {produto.id}</Text>
+                  <Text style={styles.productCategory}>
+                    {categoria?.nome || produto.categoria || "Sem categoria"}
+                  </Text>
                 </View>
                 <Text style={styles.productPrice}>{formatarPreco(produto.preco)}</Text>
               </View>
               <Text style={styles.productDescription}>{produto.descricao}</Text>
-              <View style={styles.relationshipBox}>
-                <Text style={styles.relationshipText}>
-                  Categoria: {categoria?.nome || produto.categoria || "Sem categoria"}
-                </Text>
-                <Text style={styles.relationshipSubtext}>
-                  categoriaId: {produto.categoriaId || "não informado"}
-                </Text>
-              </View>
               <View style={styles.actionRow}>
                 <Pressable
                   style={[styles.actionButton, styles.editButton]}
@@ -283,18 +295,15 @@ export default function AdminProdutosScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f5f1eb" },
   content: { padding: 20, paddingBottom: 40 },
-  header: { marginBottom: 18 },
+  header: { marginBottom: 20 },
   backButton: {
     alignSelf: "flex-start",
-    backgroundColor: "#1f1f1f",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginBottom: 18,
+    paddingVertical: 8,
+    marginBottom: 14,
   },
-  backButtonText: { color: "#ffffff", fontWeight: "800" },
-  title: { fontSize: 30, fontWeight: "900", color: "#1f1f1f" },
-  subtitle: { marginTop: 8, fontSize: 15, lineHeight: 22, color: "#5f5f5f" },
+  backButtonText: { color: "#2c1f14", fontWeight: "800", fontSize: 15 },
+  title: { fontSize: 28, fontWeight: "900", color: "#2c1f14" },
+  subtitle: { marginTop: 6, fontSize: 14, color: "#8a7560" },
   restoreCard: {
     backgroundColor: "#ffffff",
     borderRadius: 18,
@@ -311,8 +320,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e0d8ce",
   },
-  cardTitle: { fontSize: 20, fontWeight: "900", color: "#1f1f1f", marginBottom: 14 },
-  statsRow: { flexDirection: "row", gap: 10 },
+  cardTitle: { fontSize: 18, fontWeight: "900", color: "#2c1f14", marginBottom: 14 },
+  statsRow: { flexDirection: "row", gap: 10, marginBottom: 4 },
   statBox: {
     flex: 1,
     backgroundColor: "#f5f1eb",
@@ -320,62 +329,64 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: "center",
   },
-  statNumber: { fontSize: 22, fontWeight: "900", color: "#1f1f1f" },
-  statLabel: { marginTop: 4, fontSize: 12, color: "#666666", textAlign: "center" },
+  statNumber: { fontSize: 24, fontWeight: "900", color: "#2c1f14" },
+  statLabel: { marginTop: 4, fontSize: 12, color: "#8a7560", textAlign: "center" },
   restoreButton: {
-    marginTop: 16,
-    backgroundColor: "#245c3c",
+    marginTop: 14,
+    backgroundColor: "#2c1f14",
     paddingVertical: 13,
     borderRadius: 14,
     alignItems: "center",
   },
-  restoreButtonText: { color: "#ffffff", fontWeight: "900" },
+  restoreButtonText: { color: "#f0e6d3", fontWeight: "900" },
   successMessage: {
     marginTop: 12,
-    backgroundColor: "#dff3e6",
-    color: "#245c3c",
+    backgroundColor: "#edf7f0",
+    color: "#2a6644",
     padding: 10,
     borderRadius: 12,
     fontWeight: "800",
     textAlign: "center",
   },
-  label: { fontSize: 14, fontWeight: "800", color: "#2c2c2c", marginBottom: 8 },
+  label: { fontSize: 13, fontWeight: "800", color: "#2c1f14", marginBottom: 8 },
   input: {
-    backgroundColor: "#f7f4ef",
+    backgroundColor: "#f5f1eb",
     borderWidth: 1,
-    borderColor: "#ded6cc",
+    borderColor: "#e0d8ce",
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
     marginBottom: 14,
     fontSize: 15,
-    color: "#1f1f1f",
+    color: "#2c1f14",
   },
   textArea: { minHeight: 90 },
   categoryOptions: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 16 },
   categoryOption: {
-    backgroundColor: "#f7f4ef",
+    backgroundColor: "#f5f1eb",
     borderWidth: 1,
-    borderColor: "#ded6cc",
+    borderColor: "#e0d8ce",
     borderRadius: 999,
     paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingVertical: 9,
   },
-  categoryOptionSelected: { backgroundColor: "#1f1f1f", borderColor: "#1f1f1f" },
-  categoryOptionText: { color: "#2c2c2c", fontWeight: "800" },
-  categoryOptionTextSelected: { color: "#ffffff" },
-  saveButton: { backgroundColor: "#1f1f1f", paddingVertical: 14, borderRadius: 14, alignItems: "center" },
+  categoryOptionSelected: { backgroundColor: "#2c1f14", borderColor: "#2c1f14" },
+  categoryOptionText: { color: "#5a4535", fontWeight: "800", fontSize: 13 },
+  categoryOptionTextSelected: { color: "#f0e6d3" },
+  saveButton: { backgroundColor: "#c9a96e", paddingVertical: 14, borderRadius: 14, alignItems: "center" },
   saveButtonText: { color: "#ffffff", fontWeight: "900" },
   cancelButton: {
     marginTop: 10,
-    backgroundColor: "#e8dfd4",
+    backgroundColor: "#f5f1eb",
     paddingVertical: 13,
     borderRadius: 14,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e0d8ce",
   },
-  cancelButtonText: { color: "#1f1f1f", fontWeight: "900" },
+  cancelButtonText: { color: "#2c1f14", fontWeight: "900" },
   listArea: { gap: 14 },
-  sectionTitle: { fontSize: 21, fontWeight: "900", color: "#1f1f1f", marginBottom: 2 },
+  sectionTitle: { fontSize: 20, fontWeight: "900", color: "#2c1f14", marginBottom: 4 },
   productCard: {
     backgroundColor: "#ffffff",
     borderRadius: 18,
@@ -384,18 +395,15 @@ const styles = StyleSheet.create({
     borderColor: "#e0d8ce",
     marginBottom: 14,
   },
-  productHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 12 },
+  productHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 4 },
   productTitleBox: { flex: 1 },
-  productName: { fontSize: 18, fontWeight: "900", color: "#1f1f1f" },
-  productId: { marginTop: 4, fontSize: 12, color: "#777777" },
-  productPrice: { fontSize: 16, fontWeight: "900", color: "#245c3c" },
-  productDescription: { marginTop: 12, fontSize: 14, lineHeight: 21, color: "#5f5f5f" },
-  relationshipBox: { marginTop: 14, backgroundColor: "#f5f1eb", borderRadius: 14, padding: 12 },
-  relationshipText: { fontSize: 14, fontWeight: "900", color: "#2c2c2c" },
-  relationshipSubtext: { marginTop: 4, fontSize: 12, color: "#777777" },
+  productName: { fontSize: 17, fontWeight: "900", color: "#2c1f14" },
+  productCategory: { marginTop: 3, fontSize: 12, color: "#c9a96e", fontWeight: "700", textTransform: "uppercase" },
+  productPrice: { fontSize: 16, fontWeight: "900", color: "#2c1f14" },
+  productDescription: { marginTop: 8, fontSize: 13, lineHeight: 20, color: "#8a7560" },
   actionRow: { flexDirection: "row", gap: 10, marginTop: 14 },
-  actionButton: { flex: 1, paddingVertical: 12, borderRadius: 14, alignItems: "center" },
-  editButton: { backgroundColor: "#2f5f9f" },
-  deleteButton: { backgroundColor: "#9f2f2f" },
-  actionButtonText: { color: "#ffffff", fontWeight: "900" },
+  actionButton: { flex: 1, paddingVertical: 11, borderRadius: 12, alignItems: "center" },
+  editButton: { backgroundColor: "#2c1f14" },
+  deleteButton: { backgroundColor: "#fff0f0", borderWidth: 1, borderColor: "#f0c8c8" },
+  actionButtonText: { color: "#ffffff", fontWeight: "900", fontSize: 13 },
 });

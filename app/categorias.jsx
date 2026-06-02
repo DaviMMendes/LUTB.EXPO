@@ -11,9 +11,7 @@ import { useCategoriasStore } from "../src/store/categoriasStore";
 import { useProdutosStore } from "../src/store/produtosStore";
 
 export default function CategoriasScreen() {
-  const { categorias, resetVersaoCategorias, restaurarCategoriasDoMock } =
-    useCategoriasStore();
-
+  const { categorias } = useCategoriasStore();
   const { produtos } = useProdutosStore();
 
   const categoriasComProdutos = useMemo(() => {
@@ -21,7 +19,6 @@ export default function CategoriasScreen() {
       const produtosDaCategoria = produtos.filter(
         (produto) => String(produto.categoriaId) === String(categoria.id)
       );
-
       return {
         ...categoria,
         produtos: produtosDaCategoria,
@@ -35,21 +32,12 @@ export default function CategoriasScreen() {
       router.back();
       return;
     }
-
     router.push("/");
-  }
-
-  function restaurarCategorias() {
-    restaurarCategoriasDoMock();
   }
 
   function formatarPreco(valor) {
     const numero = Number(valor);
-
-    if (Number.isNaN(numero)) {
-      return "R$ 0,00";
-    }
-
+    if (Number.isNaN(numero)) return "R$ 0,00";
     return `R$ ${numero.toFixed(2).replace(".", ",")}`;
   }
 
@@ -57,60 +45,37 @@ export default function CategoriasScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Pressable style={styles.backButton} onPress={voltar}>
-          <Text style={styles.backButtonText}>Voltar</Text>
+          <Text style={styles.backButtonText}>← Voltar</Text>
         </Pressable>
-
         <Text style={styles.title}>Categorias</Text>
-
         <Text style={styles.subtitle}>
-          Esta tela representa a segunda entidade do app e demonstra o
-          relacionamento entre Categoria e Produto.
+          Explore nossa coleção organizada por estilo e tipo de peça.
         </Text>
       </View>
 
-      <View style={styles.relationshipCard}>
-        <Text style={styles.cardTitle}>Relacionamento implementado</Text>
-
-        <Text style={styles.relationshipText}>
-          Uma categoria pode possuir vários produtos. Cada produto pertence a uma
-          categoria por meio do campo categoriaId.
-        </Text>
-
-        <View style={styles.statsRow}>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>{categorias.length}</Text>
-            <Text style={styles.statLabel}>Categorias</Text>
-          </View>
-
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>{produtos.length}</Text>
-            <Text style={styles.statLabel}>Produtos</Text>
-          </View>
-
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>{resetVersaoCategorias}</Text>
-            <Text style={styles.statLabel}>Reset</Text>
-          </View>
+      <View style={styles.statsRow}>
+        <View style={styles.statBox}>
+          <Text style={styles.statNumber}>{categorias.length}</Text>
+          <Text style={styles.statLabel}>Categorias</Text>
         </View>
-
-        <Pressable style={styles.restoreButton} onPress={restaurarCategorias}>
-          <Text style={styles.restoreButtonText}>
-            Restaurar categorias do mock
-          </Text>
-        </Pressable>
+        <View style={styles.statBox}>
+          <Text style={styles.statNumber}>{produtos.length}</Text>
+          <Text style={styles.statLabel}>Produtos</Text>
+        </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Lista de categorias</Text>
+        <Text style={styles.sectionTitle}>Coleções</Text>
 
         {categoriasComProdutos.map((categoria) => (
           <View key={categoria.id} style={styles.categoryCard}>
             <View style={styles.categoryHeader}>
               <View style={styles.categoryTitleBox}>
                 <Text style={styles.categoryName}>{categoria.nome}</Text>
-                <Text style={styles.categoryId}>ID: {categoria.id}</Text>
+                <Text style={styles.categoryCount}>
+                  {categoria.totalProdutos} produto(s)
+                </Text>
               </View>
-
               {categoria.destaque ? (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>Destaque</Text>
@@ -118,30 +83,22 @@ export default function CategoriasScreen() {
               ) : null}
             </View>
 
-            <Text style={styles.categoryDescription}>
-              {categoria.descricao}
-            </Text>
+            <Text style={styles.categoryDescription}>{categoria.descricao}</Text>
 
-            <View style={styles.productsBox}>
-              <Text style={styles.productsTitle}>
-                Produtos vinculados: {categoria.totalProdutos}
-              </Text>
-
-              {categoria.produtos.length > 0 ? (
-                categoria.produtos.map((produto) => (
+            {categoria.produtos.length > 0 && (
+              <View style={styles.productsBox}>
+                {categoria.produtos.map((produto) => (
                   <View key={produto.id} style={styles.productItem}>
                     <Text style={styles.productName}>{produto.nome}</Text>
-                    <Text style={styles.productPrice}>
-                      {formatarPreco(produto.preco)}
-                    </Text>
+                    <Text style={styles.productPrice}>{formatarPreco(produto.preco)}</Text>
                   </View>
-                ))
-              ) : (
-                <Text style={styles.emptyText}>
-                  Nenhum produto vinculado a esta categoria.
-                </Text>
-              )}
-            </View>
+                ))}
+              </View>
+            )}
+
+            {categoria.produtos.length === 0 && (
+              <Text style={styles.emptyText}>Nenhum produto nesta categoria.</Text>
+            )}
           </View>
         ))}
       </View>
@@ -152,108 +109,76 @@ export default function CategoriasScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
   },
   content: {
     padding: 20,
     paddingBottom: 40,
   },
   header: {
-    marginBottom: 18,
+    marginBottom: 20,
   },
   backButton: {
     alignSelf: "flex-start",
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginBottom: 18,
+    paddingVertical: 8,
+    marginBottom: 14,
   },
   backButtonText: {
-    color: "#000000",
-    fontWeight: "900",
+    color: "#2c1f14",
+    fontWeight: "800",
+    fontSize: 15,
   },
   title: {
-    color: "#ffffff",
+    color: "#2c1f14",
     fontSize: 30,
     fontWeight: "900",
   },
   subtitle: {
-    marginTop: 8,
-    color: "#cfcfcf",
+    marginTop: 6,
+    color: "#8a7560",
     fontSize: 15,
     lineHeight: 22,
   },
-  relationshipCard: {
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-    marginBottom: 20,
-  },
-  cardTitle: {
-    color: "#ffffff",
-    fontSize: 19,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  relationshipText: {
-    color: "#cfcfcf",
-    fontSize: 14,
-    lineHeight: 21,
-  },
   statsRow: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 16,
+    gap: 12,
+    marginBottom: 24,
   },
   statBox: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
-    borderRadius: 14,
-    padding: 12,
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 16,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
   },
   statNumber: {
-    color: "#ffffff",
-    fontSize: 22,
+    color: "#2c1f14",
+    fontSize: 28,
     fontWeight: "900",
   },
   statLabel: {
     marginTop: 4,
-    color: "#bfbfbf",
-    fontSize: 12,
+    color: "#8a7560",
+    fontSize: 13,
     textAlign: "center",
-  },
-  restoreButton: {
-    marginTop: 16,
-    backgroundColor: "#ffffff",
-    paddingVertical: 13,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  restoreButtonText: {
-    color: "#000000",
-    fontWeight: "900",
   },
   section: {
     gap: 14,
   },
   sectionTitle: {
-    color: "#ffffff",
-    fontSize: 21,
+    color: "#2c1f14",
+    fontSize: 20,
     fontWeight: "900",
-    marginBottom: 2,
+    marginBottom: 4,
   },
   categoryCard: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
     marginBottom: 14,
   },
   categoryHeader: {
@@ -261,71 +186,68 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     gap: 12,
+    marginBottom: 10,
   },
   categoryTitleBox: {
     flex: 1,
   },
   categoryName: {
-    color: "#ffffff",
+    color: "#2c1f14",
     fontSize: 19,
     fontWeight: "900",
   },
-  categoryId: {
-    marginTop: 4,
-    color: "#bfbfbf",
-    fontSize: 12,
+  categoryCount: {
+    marginTop: 3,
+    color: "#c9a96e",
+    fontSize: 13,
+    fontWeight: "700",
   },
   badge: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#c9a96e",
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: 999,
   },
   badgeText: {
-    color: "#000000",
+    color: "#ffffff",
     fontSize: 12,
     fontWeight: "900",
   },
   categoryDescription: {
-    marginTop: 12,
-    color: "#cfcfcf",
+    color: "#8a7560",
     fontSize: 14,
     lineHeight: 21,
+    marginBottom: 12,
   },
   productsBox: {
-    marginTop: 14,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
     borderRadius: 14,
     padding: 12,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  productsTitle: {
-    color: "#ffffff",
-    fontSize: 14,
-    fontWeight: "900",
-    marginBottom: 10,
+    gap: 8,
   },
   productItem: {
-    backgroundColor: "#171717",
-    borderRadius: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
     padding: 10,
-    marginBottom: 8,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
   },
   productName: {
-    color: "#ffffff",
+    color: "#2c1f14",
     fontSize: 14,
     fontWeight: "800",
+    flex: 1,
   },
   productPrice: {
-    marginTop: 3,
-    color: "#bfbfbf",
-    fontSize: 13,
+    color: "#c9a96e",
+    fontSize: 14,
+    fontWeight: "900",
   },
   emptyText: {
-    color: "#bfbfbf",
+    color: "#a89880",
     fontSize: 13,
     fontStyle: "italic",
   },
