@@ -1,4 +1,4 @@
-import { Link, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import {
   Image,
   Pressable,
@@ -11,64 +11,62 @@ import {
 import { useCategoriasStore } from "../../src/store/categoriasStore";
 import { useProdutosStore } from "../../src/store/produtosStore";
 
-function formatarPreco(preco) {
-  if (!preco) {
-    return "0,00";
-  }
-
-  return String(preco).replace("R$", "").trim();
-}
-
 function obterImagemProduto(imagem) {
-  if (!imagem) {
-    return null;
-  }
-
-  if (typeof imagem === "number") {
-    return imagem;
-  }
-
-  if (typeof imagem === "string") {
-    return { uri: imagem };
-  }
-
+  if (!imagem) return null;
+  if (typeof imagem === "number") return imagem;
+  if (typeof imagem === "string") return { uri: imagem };
   return imagem;
 }
 
-export default function ProdutoDetalhes() {
-  const { id } = useLocalSearchParams();
+function formatarPreco(valor) {
+  const numero = Number(valor);
+  if (Number.isNaN(numero)) return "0,00";
+  return numero.toFixed(2).replace(".", ",");
+}
 
-  const produto = useProdutosStore((state) => state.buscarProdutoPorId(id));
-  const buscarCategoriaPorId = useCategoriasStore(
-    (state) => state.buscarCategoriaPorId
+export default function ProdutoScreen() {
+  const { id } = useLocalSearchParams();
+  const produtos = useProdutosStore((state) => state.produtos);
+  const categorias = useCategoriasStore((state) => state.categorias);
+
+  const produto = produtos.find((p) => String(p.id) === String(id));
+
+  const categoria = categorias.find(
+    (c) => String(c.id) === String(produto?.categoriaId)
   );
+
+  function voltar() {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.push("/catalogo");
+  }
 
   if (!produto) {
     return (
       <View style={styles.notFoundContainer}>
-        <Text style={styles.notFoundTitle}>Produto não encontrado</Text>
-
-        <Text style={styles.notFoundText}>
-          O produto pode ter sido removido no admin temporário ou o identificador
-          da rota não existe mais no Zustand.
-        </Text>
-
-        <Link href="/catalogo" asChild>
-          <Pressable style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Voltar ao catálogo</Text>
+        <View style={styles.notFoundBox}>
+          <Text style={styles.notFoundEmoji}>🔍</Text>
+          <Text style={styles.notFoundTitle}>Produto não encontrado</Text>
+          <Text style={styles.notFoundText}>
+            Este produto pode ter sido removido ou o link está incorreto.
+          </Text>
+          <Pressable style={styles.notFoundButton} onPress={voltar}>
+            <Text style={styles.notFoundButtonText}>Voltar ao catálogo</Text>
           </Pressable>
-        </Link>
+        </View>
       </View>
     );
   }
 
   const imagemProduto = obterImagemProduto(produto.imagem);
-  const categoria = buscarCategoriaPorId(produto.categoriaId);
   const nomeCategoria = categoria?.nome || produto.categoria || "Sem categoria";
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.imageBox}>
+      {/* Imagem em destaque */}
+      <View style={styles.imageContainer}>
         {imagemProduto ? (
           <Image
             source={imagemProduto}
@@ -76,95 +74,82 @@ export default function ProdutoDetalhes() {
             resizeMode="cover"
           />
         ) : (
-          <Text style={styles.imagePlaceholder}>LUTB</Text>
+          <View style={styles.imagePlaceholder}>
+            <Text style={styles.imagePlaceholderText}>LUTB</Text>
+            <Text style={styles.imagePlaceholderSub}>Imagem não disponível</Text>
+          </View>
         )}
+        <Pressable style={styles.backButton} onPress={voltar}>
+          <Text style={styles.backButtonText}>←</Text>
+        </Pressable>
       </View>
 
-      <View style={styles.infoBox}>
-        <Text style={styles.category}>{nomeCategoria}</Text>
+      {/* Conteúdo principal */}
+      <View style={styles.mainCard}>
+        {/* Categoria */}
+        <View style={styles.categoryTag}>
+          <Text style={styles.categoryTagText}>{nomeCategoria}</Text>
+        </View>
 
-        <Text style={styles.title}>{produto.nome}</Text>
+        {/* Nome */}
+        <Text style={styles.productName}>{produto.nome}</Text>
 
-        <Text style={styles.price}>R$ {formatarPreco(produto.preco)}</Text>
+        {/* Preço em destaque */}
+        <View style={styles.priceRow}>
+          <Text style={styles.priceCurrency}>R$</Text>
+          <Text style={styles.priceValue}>{formatarPreco(produto.preco)}</Text>
+        </View>
 
-        <Text style={styles.description}>
-          {produto.descricao || "Produto sem descrição cadastrada."}
+        <View style={styles.divider} />
+
+        {/* Descrição */}
+        <Text style={styles.sectionLabel}>Sobre este produto</Text>
+        <Text style={styles.productDescription}>
+          {produto.descricao || "Nenhuma descrição cadastrada para este produto."}
+        </Text>
+
+        <View style={styles.divider} />
+
+        {/* Detalhes */}
+        <Text style={styles.sectionLabel}>Detalhes</Text>
+        <View style={styles.detailsGrid}>
+          <View style={styles.detailItem}>
+            <Text style={styles.detailLabel}>Categoria</Text>
+            <Text style={styles.detailValue}>{nomeCategoria}</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Text style={styles.detailLabel}>Tipo</Text>
+            <Text style={styles.detailValue}>Artesanal</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Text style={styles.detailLabel}>Disponibilidade</Text>
+            <Text style={styles.detailValue}>Em estoque</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Text style={styles.detailLabel}>Produção</Text>
+            <Text style={styles.detailValue}>Feito à mão</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Info artesanal */}
+      <View style={styles.craftCard}>
+        <Text style={styles.craftEmoji}>✦</Text>
+        <Text style={styles.craftText}>
+          Cada peça LUTB é única e produzida artesanalmente com materiais
+          selecionados.
         </Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Informações técnicas</Text>
+      {/* Botões de ação */}
+      <View style={styles.actions}>
+        <Pressable style={styles.buyButton}>
+          <Text style={styles.buyButtonText}>Comprar agora</Text>
+        </Pressable>
 
-        <View style={styles.detailCard}>
-          <Text style={styles.detailLabel}>ID do produto</Text>
-          <Text style={styles.detailValue}>{produto.id}</Text>
-        </View>
-
-        <View style={styles.detailCard}>
-          <Text style={styles.detailLabel}>Entidade principal</Text>
-          <Text style={styles.detailValue}>Produto</Text>
-        </View>
-
-        <View style={styles.detailCard}>
-          <Text style={styles.detailLabel}>Categoria vinculada</Text>
-          <Text style={styles.detailValue}>{nomeCategoria}</Text>
-        </View>
-
-        <View style={styles.detailCard}>
-          <Text style={styles.detailLabel}>categoriaId</Text>
-          <Text style={styles.detailValue}>
-            {produto.categoriaId || "não informado"}
-          </Text>
-        </View>
-
-        <View style={styles.relationshipCard}>
-          <Text style={styles.relationshipTitle}>Relacionamento</Text>
-          <Text style={styles.relationshipText}>
-            Este Produto aponta para a entidade Categoria usando categoriaId. A
-            categoria encontrada na store é: {nomeCategoria}.
-          </Text>
-        </View>
-
-        <View style={styles.detailCard}>
-          <Text style={styles.detailLabel}>Fonte dos dados</Text>
-          <Text style={styles.detailValue}>
-            Zustand com dados temporários vindos do mock local
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.warningBox}>
-        <Text style={styles.warningTitle}>Modo temporário</Text>
-        <Text style={styles.warningText}>
-          Esta tela lê o produto e a categoria pelo Zustand. Quando o Supabase
-          estiver pronto, os dados deverão vir do banco real.
-        </Text>
-      </View>
-
-      <View style={styles.buttons}>
-        <Link href="/catalogo" asChild>
-          <Pressable style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Voltar ao catálogo</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/categorias" asChild>
-          <Pressable style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>Ver Categorias</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/admin/produtos" asChild>
-          <Pressable style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>Editar no Admin</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/" asChild>
-          <Pressable style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>Voltar para Home</Text>
-          </Pressable>
-        </Link>
+        <Pressable style={styles.catalogButton} onPress={voltar}>
+          <Text style={styles.catalogButtonText}>Continuar vendo produtos</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -173,177 +158,254 @@ export default function ProdutoDetalhes() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#f5f1eb",
   },
   content: {
-    padding: 20,
     paddingBottom: 40,
   },
-  imageBox: {
-    height: 330,
+
+  // Estado de produto não encontrado
+  notFoundContainer: {
+    flex: 1,
+    backgroundColor: "#f5f1eb",
+    padding: 20,
+    justifyContent: "center",
+  },
+  notFoundBox: {
     backgroundColor: "#ffffff",
     borderRadius: 24,
+    padding: 32,
     alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
+  },
+  notFoundEmoji: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  notFoundTitle: {
+    color: "#2c1f14",
+    fontSize: 22,
+    fontWeight: "900",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  notFoundText: {
+    color: "#8a7560",
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  notFoundButton: {
+    backgroundColor: "#c9a96e",
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 14,
+  },
+  notFoundButtonText: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "900",
+  },
+
+  // Imagem
+  imageContainer: {
+    width: "100%",
+    height: 320,
+    backgroundColor: "#e8dfd4",
+    position: "relative",
   },
   productImage: {
     width: "100%",
     height: "100%",
   },
   imagePlaceholder: {
-    color: "#000000",
-    fontSize: 34,
-    fontWeight: "900",
-    letterSpacing: 2,
-  },
-  infoBox: {
-    marginTop: 22,
-    backgroundColor: "#171717",
-    borderRadius: 24,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  category: {
-    color: "#a8a8a8",
-    fontSize: 14,
-    fontWeight: "800",
-    marginBottom: 8,
-    textTransform: "uppercase",
-  },
-  title: {
-    color: "#ffffff",
-    fontSize: 28,
-    fontWeight: "900",
-    marginBottom: 12,
-  },
-  price: {
-    color: "#ffffff",
-    fontSize: 24,
-    fontWeight: "900",
-    marginBottom: 16,
-  },
-  description: {
-    color: "#d4d4d4",
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  section: {
-    marginTop: 26,
-  },
-  sectionTitle: {
-    color: "#ffffff",
-    fontSize: 22,
-    fontWeight: "900",
-    marginBottom: 14,
-  },
-  detailCard: {
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-    marginBottom: 12,
-  },
-  detailLabel: {
-    color: "#999999",
-    fontSize: 13,
-    fontWeight: "800",
-    textTransform: "uppercase",
-    marginBottom: 6,
-  },
-  detailValue: {
-    color: "#ffffff",
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: "700",
-  },
-  relationshipCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 12,
-  },
-  relationshipTitle: {
-    color: "#000000",
-    fontSize: 17,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  relationshipText: {
-    color: "#202020",
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: "600",
-  },
-  warningBox: {
-    marginTop: 20,
-    backgroundColor: "#2a2111",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#725b26",
-  },
-  warningTitle: {
-    color: "#ffe0a3",
-    fontSize: 17,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  warningText: {
-    color: "#f0d8aa",
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  buttons: {
-    marginTop: 28,
-  },
-  primaryButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  primaryButtonText: {
-    color: "#000000",
-    fontSize: 16,
-    fontWeight: "900",
-  },
-  secondaryButton: {
-    borderWidth: 1,
-    borderColor: "#ffffff",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: 12,
-  },
-  secondaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "800",
-  },
-  notFoundContainer: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
-    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#e8dfd4",
+  },
+  imagePlaceholderText: {
+    color: "#c9a96e",
+    fontSize: 36,
+    fontWeight: "900",
+    letterSpacing: 4,
+  },
+  imagePlaceholderSub: {
+    color: "#a89880",
+    fontSize: 13,
+    marginTop: 8,
+  },
+  backButton: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(44, 31, 20, 0.75)",
     alignItems: "center",
     justifyContent: "center",
   },
-  notFoundTitle: {
-    color: "#ffffff",
-    fontSize: 26,
+  backButtonText: {
+    color: "#f0e6d3",
+    fontSize: 20,
     fontWeight: "900",
-    textAlign: "center",
+    lineHeight: 22,
+  },
+
+  // Card principal
+  mainCard: {
+    backgroundColor: "#ffffff",
+    marginHorizontal: 16,
+    marginTop: -24,
+    borderRadius: 24,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: "#e0d8ce",
+    // Sombra leve para o card flutuar sobre a imagem
+    shadowColor: "#2c1f14",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  categoryTag: {
+    alignSelf: "flex-start",
+    backgroundColor: "#fdf3e3",
+    borderWidth: 1,
+    borderColor: "#e8c98a",
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     marginBottom: 12,
   },
-  notFoundText: {
-    color: "#cfcfcf",
+  categoryTagText: {
+    color: "#9a6f2a",
+    fontSize: 12,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  productName: {
+    color: "#2c1f14",
+    fontSize: 26,
+    fontWeight: "900",
+    lineHeight: 32,
+    marginBottom: 16,
+  },
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 4,
+    marginBottom: 20,
+  },
+  priceCurrency: {
+    color: "#8a7560",
+    fontSize: 18,
+    fontWeight: "700",
+    paddingBottom: 3,
+  },
+  priceValue: {
+    color: "#2c1f14",
+    fontSize: 38,
+    fontWeight: "900",
+    lineHeight: 42,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#f0ebe3",
+    marginVertical: 18,
+  },
+  sectionLabel: {
+    color: "#a89880",
+    fontSize: 11,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+  productDescription: {
+    color: "#5a4535",
     fontSize: 15,
-    lineHeight: 22,
-    textAlign: "center",
-    marginBottom: 22,
+    lineHeight: 24,
+  },
+  detailsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  detailItem: {
+    width: "47%",
+    backgroundColor: "#f5f1eb",
+    borderRadius: 14,
+    padding: 14,
+  },
+  detailLabel: {
+    color: "#a89880",
+    fontSize: 11,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  detailValue: {
+    color: "#2c1f14",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+
+  // Card artesanal
+  craftCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginHorizontal: 16,
+    marginTop: 14,
+    backgroundColor: "#2c1f14",
+    borderRadius: 18,
+    padding: 16,
+  },
+  craftEmoji: {
+    color: "#c9a96e",
+    fontSize: 20,
+  },
+  craftText: {
+    flex: 1,
+    color: "#e0d0b8",
+    fontSize: 13,
+    lineHeight: 20,
+  },
+
+  // Ações
+  actions: {
+    paddingHorizontal: 16,
+    marginTop: 16,
+    gap: 12,
+  },
+  buyButton: {
+    backgroundColor: "#c9a96e",
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: "center",
+  },
+  buyButtonText: {
+    color: "#ffffff",
+    fontSize: 17,
+    fontWeight: "900",
+    letterSpacing: 0.3,
+  },
+  catalogButton: {
+    borderWidth: 1,
+    borderColor: "#2c1f14",
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: "center",
+  },
+  catalogButtonText: {
+    color: "#2c1f14",
+    fontSize: 15,
+    fontWeight: "800",
   },
 });

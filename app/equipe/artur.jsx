@@ -14,36 +14,35 @@ export default function Artur() {
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>A</Text>
         </View>
-
         <Text style={styles.title}>Artur Lima Pinto Bacalhau</Text>
-        <Text style={styles.subtitle}>RA: 852137</Text>
+        <Text style={styles.ra}>RA: 852137</Text>
         <Text style={styles.role}>Supabase, banco de dados e back-end</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Responsabilidades no projeto</Text>
+        <Text style={styles.sectionTitle}>Responsabilidades</Text>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Supabase</Text>
           <Text style={styles.cardText}>
-            Responsável por configurar o Supabase, que será usado como back-end
-            do aplicativo LUTB.
+            Configuração do Supabase como back-end do aplicativo LUTB,
+            incluindo projeto, credenciais e ambiente de produção.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Tabelas do banco</Text>
+          <Text style={styles.cardTitle}>Banco de dados</Text>
           <Text style={styles.cardText}>
-            Criação das tabelas necessárias para armazenar os dados principais
-            do sistema, como produtos, categorias e usuários.
+            Criação das tabelas de produtos, categorias e usuários no
+            PostgreSQL, estruturando os dados principais do sistema.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Relacionamento produto-categoria</Text>
           <Text style={styles.cardText}>
-            Criação do relacionamento entre produtos e categorias, permitindo
-            que o aplicativo mostre entidades relacionadas.
+            Modelagem e implementação do relacionamento entre produtos e
+            categorias, exibido nas telas de catálogo e categorias do app.
           </Text>
         </View>
 
@@ -56,33 +55,24 @@ export default function Artur() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Policies e RLS</Text>
+          <Text style={styles.cardTitle}>Segurança e permissões</Text>
           <Text style={styles.cardText}>
-            Configuração das policies e regras de Row Level Security para
-            proteger os dados e controlar permissões de acesso.
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Credenciais do Supabase</Text>
-          <Text style={styles.cardText}>
-            Fornecimento da SUPABASE_URL e da SUPABASE_ANON_KEY para substituir
-            o mock temporário usado durante o desenvolvimento inicial.
+            Configuração de policies e Row Level Security para proteger os
+            dados e controlar permissões de acesso por tipo de usuário.
           </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Dados iniciais</Text>
           <Text style={styles.cardText}>
-            Criação dos dados iniciais no banco para permitir testes reais de
-            catálogo, relacionamento e autenticação.
+            Inserção dos dados iniciais no banco para viabilizar o catálogo,
+            as categorias e os testes de autenticação.
           </Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tecnologias relacionadas</Text>
-
+        <Text style={styles.sectionTitle}>Tecnologias</Text>
         <View style={styles.tags}>
           <Text style={styles.tag}>Supabase</Text>
           <Text style={styles.tag}>PostgreSQL</Text>
@@ -93,26 +83,12 @@ export default function Artur() {
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Resumo</Text>
-
-        <View style={styles.summaryBox}>
-          <Text style={styles.summaryText}>
-            Arthur ficou responsável pela parte de back-end do projeto,
-            configurando o Supabase, criando tabelas, relacionamento entre
-            produtos e categorias, autenticação, policies, RLS, credenciais e
-            dados iniciais.
-          </Text>
-        </View>
-      </View>
-
       <View style={styles.buttons}>
         <Link href="/" asChild>
           <Pressable style={styles.primaryButton}>
             <Text style={styles.primaryButtonText}>Voltar para Home</Text>
           </Pressable>
         </Link>
-
         <Link href="/sobre" asChild>
           <Pressable style={styles.secondaryButton}>
             <Text style={styles.secondaryButtonText}>Ver Sobre o App</Text>
@@ -124,137 +100,77 @@ export default function Artur() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0f0f0f",
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
+  container: { flex: 1, backgroundColor: "#f5f1eb" },
+  content: { padding: 20, paddingBottom: 40 },
   header: {
     alignItems: "center",
-    backgroundColor: "#171717",
+    backgroundColor: "#2c1f14",
     borderRadius: 24,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
+    padding: 28,
   },
   avatar: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: "#ffffff",
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    backgroundColor: "#c9a96e",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
-  avatarText: {
-    color: "#000000",
-    fontSize: 38,
-    fontWeight: "900",
-  },
+  avatarText: { color: "#ffffff", fontSize: 34, fontWeight: "900" },
   title: {
-    color: "#ffffff",
-    fontSize: 25,
+    color: "#f0e6d3",
+    fontSize: 22,
     fontWeight: "900",
     textAlign: "center",
     marginBottom: 6,
   },
-  subtitle: {
-    color: "#cfcfcf",
-    fontSize: 15,
-    textAlign: "center",
-    marginBottom: 8,
-  },
+  ra: { color: "#c8b89a", fontSize: 14, textAlign: "center", marginBottom: 8 },
   role: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "800",
+    color: "#e0d0b8",
+    fontSize: 14,
+    fontWeight: "700",
     textAlign: "center",
-    lineHeight: 22,
+    lineHeight: 21,
   },
-  section: {
-    marginTop: 26,
-  },
-  sectionTitle: {
-    color: "#ffffff",
-    fontSize: 22,
-    fontWeight: "900",
-    marginBottom: 14,
-  },
+  section: { marginTop: 26 },
+  sectionTitle: { color: "#2c1f14", fontSize: 20, fontWeight: "900", marginBottom: 14 },
   card: {
-    backgroundColor: "#171717",
+    backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
     marginBottom: 12,
   },
-  cardTitle: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  cardText: {
-    color: "#cfcfcf",
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  tags: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
+  cardTitle: { color: "#2c1f14", fontSize: 16, fontWeight: "900", marginBottom: 6 },
+  cardText: { color: "#8a7560", fontSize: 14, lineHeight: 21 },
+  tags: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   tag: {
-    color: "#ffffff",
-    backgroundColor: "#171717",
+    color: "#5a4535",
+    backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e0d8ce",
     borderRadius: 999,
     paddingHorizontal: 14,
-    paddingVertical: 9,
-    fontSize: 14,
+    paddingVertical: 8,
+    fontSize: 13,
     fontWeight: "800",
   },
-  summaryBox: {
-    backgroundColor: "#171717",
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#2a2a2a",
-  },
-  summaryText: {
-    color: "#cfcfcf",
-    fontSize: 15,
-    lineHeight: 23,
-  },
-  buttons: {
-    marginTop: 28,
-    gap: 12,
-  },
+  buttons: { marginTop: 28, gap: 12 },
   primaryButton: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 14,
+    backgroundColor: "#c9a96e",
+    paddingVertical: 15,
     borderRadius: 14,
     alignItems: "center",
   },
-  primaryButtonText: {
-    color: "#000000",
-    fontSize: 16,
-    fontWeight: "900",
-  },
+  primaryButtonText: { color: "#ffffff", fontSize: 16, fontWeight: "900" },
   secondaryButton: {
     borderWidth: 1,
-    borderColor: "#ffffff",
+    borderColor: "#2c1f14",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
   },
-  secondaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "800",
-  },
+  secondaryButtonText: { color: "#2c1f14", fontSize: 15, fontWeight: "800" },
 });

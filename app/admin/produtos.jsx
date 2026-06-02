@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -9,13 +9,10 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useAuthStore } from "../../src/store/authStore";
 import { useCategoriasStore } from "../../src/store/categoriasStore";
 import { useProdutosStore } from "../../src/store/produtosStore";
 
 export default function AdminProdutosScreen() {
-  const autenticado = useAuthStore((state) => state.autenticado);
-
   const {
     produtos,
     adicionarProduto,
@@ -34,12 +31,6 @@ export default function AdminProdutosScreen() {
   const [descricao, setDescricao] = useState("");
   const [categoriaId, setCategoriaId] = useState(categorias[0]?.id || "acessorios");
   const [mensagem, setMensagem] = useState("");
-
-  useEffect(() => {
-    if (!autenticado) {
-      router.replace("/login");
-    }
-  }, [autenticado]);
 
   const categoriasPorId = useMemo(() => {
     const mapa = {};
@@ -157,8 +148,6 @@ export default function AdminProdutosScreen() {
     if (Number.isNaN(numero)) return "R$ 0,00";
     return `R$ ${numero.toFixed(2).replace(".", ",")}`;
   }
-
-  if (!autenticado) return null;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -281,7 +270,7 @@ export default function AdminProdutosScreen() {
                   style={[styles.actionButton, styles.deleteButton]}
                   onPress={() => confirmarRemocao(produto)}
                 >
-                  <Text style={styles.actionButtonText}>Remover</Text>
+                  <Text style={[styles.actionButtonText, styles.deleteButtonText]}>Remover</Text>
                 </Pressable>
               </View>
             </View>
@@ -373,7 +362,12 @@ const styles = StyleSheet.create({
   categoryOptionSelected: { backgroundColor: "#2c1f14", borderColor: "#2c1f14" },
   categoryOptionText: { color: "#5a4535", fontWeight: "800", fontSize: 13 },
   categoryOptionTextSelected: { color: "#f0e6d3" },
-  saveButton: { backgroundColor: "#c9a96e", paddingVertical: 14, borderRadius: 14, alignItems: "center" },
+  saveButton: {
+    backgroundColor: "#c9a96e",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+  },
   saveButtonText: { color: "#ffffff", fontWeight: "900" },
   cancelButton: {
     marginTop: 10,
@@ -395,15 +389,32 @@ const styles = StyleSheet.create({
     borderColor: "#e0d8ce",
     marginBottom: 14,
   },
-  productHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 4 },
+  productHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 12,
+    marginBottom: 4,
+  },
   productTitleBox: { flex: 1 },
   productName: { fontSize: 17, fontWeight: "900", color: "#2c1f14" },
-  productCategory: { marginTop: 3, fontSize: 12, color: "#c9a96e", fontWeight: "700", textTransform: "uppercase" },
+  productCategory: {
+    marginTop: 3,
+    fontSize: 12,
+    color: "#c9a96e",
+    fontWeight: "700",
+    textTransform: "uppercase",
+  },
   productPrice: { fontSize: 16, fontWeight: "900", color: "#2c1f14" },
   productDescription: { marginTop: 8, fontSize: 13, lineHeight: 20, color: "#8a7560" },
   actionRow: { flexDirection: "row", gap: 10, marginTop: 14 },
   actionButton: { flex: 1, paddingVertical: 11, borderRadius: 12, alignItems: "center" },
   editButton: { backgroundColor: "#2c1f14" },
-  deleteButton: { backgroundColor: "#fff0f0", borderWidth: 1, borderColor: "#f0c8c8" },
+  deleteButton: {
+    backgroundColor: "#fff0f0",
+    borderWidth: 1,
+    borderColor: "#f0c8c8",
+  },
   actionButtonText: { color: "#ffffff", fontWeight: "900", fontSize: 13 },
+  deleteButtonText: { color: "#9f3030" },
 });
